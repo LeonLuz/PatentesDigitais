@@ -1,0 +1,132 @@
+package io.github.leonluz.gatewayapi.autenticacao.model;
+
+import jakarta.persistence.*;
+
+import java.time.OffsetDateTime;
+
+@Entity
+@Table(name="USUARIO")
+@Inheritance(strategy= InheritanceType.JOINED)
+@DiscriminatorColumn(name = "tipo_perfil")
+public class Usuario {
+
+    @Id
+    @Column(name = "id_usuario")
+    private String idUsuario;
+
+    @Column(name = "email")
+    private String email;
+
+    @Column(name = "senha")
+    private String senha;
+
+    @Column(name = "telefone")
+    private String telefone;
+
+    @Column(name = "endereco")
+    private String endereco;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tipo_perfil") //insertable = false, updatable = false)
+    private TipoPerfil tipoPerfil;
+
+    @Column(name = "status_auth")
+    private boolean statusAuth;
+
+    @Column(name = "status_ativo")
+    private boolean statusAtivo;
+
+    @Column(name = "data_criacao")
+    private OffsetDateTime dataCriacao;
+
+    public Usuario() {
+
+    }
+
+    public void setIdUsuario(String idUsuario) {
+        this.idUsuario = idUsuario;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setSenha(String senha) {
+        this.senha = senha;
+    }
+
+    public void setTelefone(String telefone) {
+        this.telefone = telefone;
+    }
+
+    public void setEndereco(String endereco) {
+        this.endereco = endereco;
+    }
+
+    public void setTipoPerfil(TipoPerfil tipoPerfil) {
+        this.tipoPerfil = tipoPerfil;
+    }
+
+    public void setStatusAuth(boolean statusAuth) {
+        this.statusAuth = statusAuth;
+    }
+
+    public void setStatusAtivo(boolean statusAtivo) {
+        this.statusAtivo = statusAtivo;
+    }
+
+    public void setDataCriacao(OffsetDateTime dataCriacao) {
+        this.dataCriacao = dataCriacao;
+    }
+
+    public String getIdUsuario() {
+        return idUsuario;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getSenha() {
+        return senha;
+    }
+
+    public String getTelefone() {
+        return telefone;
+    }
+
+    public String getEndereco() {
+        return endereco;
+    }
+
+    public TipoPerfil getTipoPerfil() {
+        return tipoPerfil;
+    }
+
+    public boolean isStatusAuth() {
+        return statusAuth;
+    }
+
+    public boolean isStatusAtivo() {
+        return statusAtivo;
+    }
+
+    public OffsetDateTime getDataCriacao() {
+        return dataCriacao;
+    }
+
+    @Override
+    public String toString() {
+        return "Usuario{" +
+                "idUsuario='" + idUsuario + '\'' +
+                ", email='" + email + '\'' +
+                ", senha='" + senha + '\'' +
+                ", telefone='" + telefone + '\'' +
+                ", endereco='" + endereco + '\'' +
+                ", tipoPerfil=" + tipoPerfil +
+                ", statusAuth=" + statusAuth +
+                ", statusAtivo=" + statusAtivo +
+                ", dataCriacao=" + dataCriacao +
+                '}';
+    }
+}
