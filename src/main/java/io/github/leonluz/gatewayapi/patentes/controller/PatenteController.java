@@ -11,7 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class PatenteController {
 
     @PostMapping
-    public void salvar(@RequestBody Patente patente) {
+    public Patente salvar(@RequestBody Patente patente) {
         System.out.println("Patente recebida: " + patente);
+        return patente;
     }
 }

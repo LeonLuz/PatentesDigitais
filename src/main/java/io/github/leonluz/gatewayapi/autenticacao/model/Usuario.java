@@ -1,6 +1,7 @@
 package io.github.leonluz.gatewayapi.autenticacao.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.OffsetDateTime;
 
@@ -8,7 +9,7 @@ import java.time.OffsetDateTime;
 @Table(name="USUARIO")
 @Inheritance(strategy= InheritanceType.JOINED)
 @DiscriminatorColumn(name = "tipo_perfil")
-public class Usuario {
+public abstract class Usuario {
 
     @Id
     @Column(name = "id_usuario")
@@ -27,7 +28,7 @@ public class Usuario {
     private String endereco;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "tipo_perfil") //insertable = false, updatable = false)
+    @Column(name = "tipo_perfil", insertable = false, updatable = false)
     private TipoPerfil tipoPerfil;
 
     @Column(name = "status_auth")
@@ -36,6 +37,7 @@ public class Usuario {
     @Column(name = "status_ativo")
     private boolean statusAtivo;
 
+    @CreationTimestamp
     @Column(name = "data_criacao")
     private OffsetDateTime dataCriacao;
 
