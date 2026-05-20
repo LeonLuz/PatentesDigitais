@@ -1,15 +1,16 @@
 spring:
+  application:
+    name: Gateway API
   datasource:
-    url: jdbc:mysql://localhost:3306/patentesdb?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    username: root
-    password: admin
-    driver-class-name: com.mysql.cj.jdbc.Driver
-
+    generate-unique-name: false
+    url: jdbc:h2:mem:patentesdb;MODE=MySQL
+    username: sa
+    password: password
   jpa:
-    database-platform: org.hibernate.dialect.MySQLDialect
+    database-platform: org.hibernate.dialect.H2Dialect
     hibernate:
-      ddl-auto: none
-    show-sql: true
-    properties:
-      hibernate:
-        format_sql: true
+      ddl-auto: update
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
