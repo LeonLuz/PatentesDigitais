@@ -2,10 +2,12 @@ package io.github.leonluz.gatewayapi.patentes.model;
 
 import io.github.leonluz.gatewayapi.autenticacao.model.Pesquisador;
 import io.github.leonluz.gatewayapi.autenticacao.model.Usuario;
+import io.github.leonluz.gatewayapi.patentes.dto.PatenteRequestDTO;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "PATENTE")
@@ -17,12 +19,12 @@ public class Patente {
 
     @ManyToOne
     @JoinColumn(name = "id_titular")
-    private Usuario titular;
+    private Usuario idTitular;
 
     @Column(name = "titulo")
     private  String titulo;
 
-    @Column(name = "num_deposito")
+    @Column(name = "num_deposito", unique = true)
     private String numDeposito;
 
     @Column(name = "resumo")
@@ -37,6 +39,9 @@ public class Patente {
     @Column(name = "pesquisadores")
     private String pesquisadores;
 
+    @Column(name = "documento")
+    private String documento;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status") //nullable = false)
     private StatusPatente status;
@@ -49,16 +54,27 @@ public class Patente {
     )
     private List<Pesquisador> pesquisadoresAssociados = new ArrayList<>();
 
+    public Patente(PatenteRequestDTO dto) {
+        this.id = UUID.randomUUID().toString();
+        this.titulo = dto.titulo();
+        this.numDeposito = dto.numDeposito();
+        this.resumo = dto.resumo();
+        this.area = dto.area();
+        this.valor = dto.valor();
+        this.pesquisadores = dto.pesquisadores();
+        this.documento = dto.documento();
+    }
+
     public Patente() {
-        //lembrar de usar os setters e gerar o id depois
+
     }
 
     public void setId(String id) {
         this.id = id;
     }
 
-    public void setTitular(Usuario titular) {
-        this.titular = titular;
+    public void setIdTitular(Usuario idTitular) {
+        this.idTitular = idTitular;
     }
 
     public void setTitulo(String titulo) {
@@ -85,16 +101,24 @@ public class Patente {
         this.pesquisadores = pesquisadores;
     }
 
+    public void setDocumento(String documento) {
+        this.documento = documento;
+    }
+
     public void setStatus(StatusPatente status) {
         this.status = status;
+    }
+
+    public void setPesquisadoresAssociados(List<Pesquisador> pesquisadoresAssociados) {
+        this.pesquisadoresAssociados = pesquisadoresAssociados;
     }
 
     public String getId() {
         return id;
     }
 
-    public Usuario getTitular() {
-        return titular;
+    public Usuario getIdTitular() {
+        return idTitular;
     }
 
     public String getTitulo() {
@@ -121,15 +145,23 @@ public class Patente {
         return pesquisadores;
     }
 
+    public String getDocumento() {
+        return documento;
+    }
+
     public StatusPatente getStatus() {
         return status;
+    }
+
+    public List<Pesquisador> getPesquisadoresAssociados() {
+        return pesquisadoresAssociados;
     }
 
     @Override
     public String toString() {
         return "Patente{" +
                 "id='" + id + '\'' +
-                ", titular='" + titular + '\'' +
+                ", idTitular='" + idTitular + '\'' +
                 ", titulo='" + titulo + '\'' +
                 ", numDeposito='" + numDeposito + '\'' +
                 ", resumo='" + resumo + '\'' +

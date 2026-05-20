@@ -12,15 +12,16 @@ public class ItemCarrinho {
     private String idItem;
 
     @ManyToOne
-    @JoinColumn(name = "id_carrinho")
+    @JoinColumn(name = "id_carrinho", nullable = false)
     private Carrinho idCarrinho;
 
     @ManyToOne
-    @JoinColumn(name = "id_patente")
+    @JoinColumn(name = "id_patente", nullable = false)
     private Patente idPatente;
 
-    public ItemCarrinho() {
 
+
+    public ItemCarrinho() {
     }
 
     public void setIdItem(String idItem) {
