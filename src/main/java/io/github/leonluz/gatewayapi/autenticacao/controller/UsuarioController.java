@@ -75,4 +75,9 @@ public class UsuarioController {
     public NIT buscarRazaoSocialNit(@RequestParam("razaoSocial") String razaoSocial) {
         return nitService.findByRazaoSocial(razaoSocial);
     }
+
+    @GetMapping("/pesquisador/buscar")
+    public Pesquisador buscarPorNome(@RequestParam("nome") String nome) {
+        return pesquisadorService.findByNome(nome);
+    }
 }

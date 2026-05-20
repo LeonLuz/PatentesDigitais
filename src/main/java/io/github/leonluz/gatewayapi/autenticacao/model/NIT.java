@@ -1,7 +1,11 @@
 package io.github.leonluz.gatewayapi.autenticacao.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.github.leonluz.gatewayapi.autenticacao.dto.NITRequestDTO;
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "NIT")
@@ -14,6 +18,10 @@ public class NIT extends Usuario {
 
     @Column(name = "razao_social", nullable = false)
     private String razaoSocial;
+
+    @OneToMany(mappedBy = "nit")
+    @JsonIgnoreProperties("nit")
+    private List<Pesquisador> pesquisadores = new ArrayList<>();
 
     public NIT(NITRequestDTO dto) {
         this.setEmail(dto.email());
@@ -34,12 +42,20 @@ public class NIT extends Usuario {
         this.razaoSocial = razaoSocial;
     }
 
+    public void setPesquisadores(List<Pesquisador> pesquisadores) {
+        this.pesquisadores = pesquisadores;
+    }
+
     public String getCnpj() {
         return cnpj;
     }
 
     public String getRazaoSocial() {
         return razaoSocial;
+    }
+
+    public List<Pesquisador> getPesquisadores() {
+        return pesquisadores;
     }
 
     @Override

@@ -8,10 +8,10 @@ import jakarta.persistence.*;
 @DiscriminatorValue("ORGANIZACAO")
 public class Organizacao extends Usuario {
 
-    @Column(name = "CNPJ") //unique = true)
+    @Column(name = "CNPJ", unique = true)
     private String cnpj;
 
-    @Column(name = "razao_social") //nullable = false)
+    @Column(name = "razao_social", nullable = false)
     private String razaoSocial;
 
     public Organizacao() {
