@@ -1,6 +1,7 @@
 package io.github.leonluz.gatewayapi.autenticacao.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.github.leonluz.gatewayapi.autenticacao.dto.PesquisadorRequestDTO;
 import io.github.leonluz.gatewayapi.patentes.model.Patente;
 import jakarta.persistence.*;
 
@@ -29,6 +30,16 @@ public class Pesquisador extends Usuario {
     @JoinColumn(name = "id_nit")
     @JsonIgnoreProperties("pesquisadores")
     private Usuario nit;
+
+    public Pesquisador(PesquisadorRequestDTO dto) {
+        this.setEmail(dto.email());
+        this.setSenha(dto.senha());
+        this.setTelefone(dto.telefone());
+        this.setEndereco(dto.endereco());
+        this.cpf = dto.cpf();
+        this.nome = dto.nome();
+        this.disponibilidadeConsultoria = dto.disponibilidadeConsultoria();
+    }
 
     public Pesquisador() {
 

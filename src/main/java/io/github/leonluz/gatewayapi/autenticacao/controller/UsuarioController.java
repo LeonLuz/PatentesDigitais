@@ -1,6 +1,8 @@
 package io.github.leonluz.gatewayapi.autenticacao.controller;
 
 import io.github.leonluz.gatewayapi.autenticacao.dto.NITRequestDTO;
+import io.github.leonluz.gatewayapi.autenticacao.dto.OrganizacaoRequestDTO;
+import io.github.leonluz.gatewayapi.autenticacao.dto.PesquisadorRequestDTO;
 import io.github.leonluz.gatewayapi.autenticacao.model.NIT;
 import io.github.leonluz.gatewayapi.autenticacao.model.Organizacao;
 import io.github.leonluz.gatewayapi.autenticacao.model.Pesquisador;
@@ -15,10 +17,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("usuarios")
 public class UsuarioController {
 
-    private UsuarioService usuarioService;
-    private NITService nitService;
-    private PesquisadorService pesquisadorService;
-    private OrganizacaoService organizacaoService;
+    private final UsuarioService usuarioService;
+    private final NITService nitService;
+    private final PesquisadorService pesquisadorService;
+    private final OrganizacaoService organizacaoService;
 
 
     public UsuarioController(UsuarioService usuarioService,NITService nitService,
@@ -37,13 +39,13 @@ public class UsuarioController {
     }
 
     @PostMapping("/pesquisador")
-    public Pesquisador salvarPesquisador(@RequestBody Pesquisador pesquisador) {
-        return this.pesquisadorService.salvarPesquisador(pesquisador);
+    public Pesquisador salvarPesquisador(@RequestBody PesquisadorRequestDTO dto) {
+        return this.pesquisadorService.salvarPesquisador(dto);
     }
 
     @PostMapping("/organizacao")
-    public Organizacao salvarOrganizacao(@RequestBody Organizacao organizacao) {
-        return this.organizacaoService.salvarOrganizacao(organizacao);
+    public Organizacao salvarOrganizacao(@RequestBody OrganizacaoRequestDTO dto) {
+        return this.organizacaoService.salvarOrganizacao(dto);
     }
 
     @GetMapping("/{id}")
@@ -62,13 +64,13 @@ public class UsuarioController {
     }
 
     @PutMapping("/pesquisador/{id}")
-    public Pesquisador atualizarPesquisador(@PathVariable("id") String id, @RequestBody Pesquisador pesquisador) {
-        return pesquisadorService.atualizarPesquisador(id, pesquisador);
+    public Pesquisador atualizarPesquisador(@PathVariable("id") String id, @RequestBody PesquisadorRequestDTO dto) {
+        return pesquisadorService.atualizarPesquisador(id, dto);
     }
 
     @PutMapping("/organizacao/{id}")
-    public Organizacao atualizarOrganizacao(@PathVariable("id") String id, @RequestBody Organizacao organizacao) {
-        return organizacaoService.atualizarOrganizacao(id, organizacao);
+    public Organizacao atualizarOrganizacao(@PathVariable("id") String id, @RequestBody OrganizacaoRequestDTO dto) {
+        return organizacaoService.atualizarOrganizacao(id, dto);
     }
 
     @GetMapping("/nit/buscar")

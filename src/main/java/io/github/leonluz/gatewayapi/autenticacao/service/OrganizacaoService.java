@@ -1,33 +1,57 @@
 package io.github.leonluz.gatewayapi.autenticacao.service;
 
+import io.github.leonluz.gatewayapi.autenticacao.dto.OrganizacaoRequestDTO;
 import io.github.leonluz.gatewayapi.autenticacao.model.Organizacao;
 import io.github.leonluz.gatewayapi.autenticacao.model.TipoPerfil;
 import io.github.leonluz.gatewayapi.autenticacao.repository.OrganizacaoRepository;
+import io.github.leonluz.gatewayapi.pedidos.model.Carrinho;
+import io.github.leonluz.gatewayapi.pedidos.repository.CarrinhoRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
 @Service
 public class OrganizacaoService {
-    private OrganizacaoRepository organizacaoRepository;
+    private final OrganizacaoRepository organizacaoRepository;
+    private final CarrinhoRepository carrinhoRepository;
 
-    public OrganizacaoService(OrganizacaoRepository organizacaoRepository) {
+    public OrganizacaoService(OrganizacaoRepository organizacaoRepository, CarrinhoRepository carrinhoRepository) {
         this.organizacaoRepository = organizacaoRepository;
+        this.carrinhoRepository = carrinhoRepository;
     }
 
-    public Organizacao salvarOrganizacao(Organizacao organizacao) {
-        System.out.println("Usuário nit recebido: " + organizacao);
+    @Transactional
+    public Organizacao salvarOrganizacao(OrganizacaoRequestDTO dto) {
 
-        var id = UUID.randomUUID().toString();
-        organizacao.setIdUsuario(id);
+        Organizacao organizacao = new Organizacao(dto);
+
+        organizacao.setIdUsuario(UUID.randomUUID().toString());
         organizacao.setTipoPerfil(TipoPerfil.ORGANIZACAO);
+        organizacao.setStatusAtivo(true);
+        organizacao.setStatusAuth(false);
 
-        return organizacaoRepository.save(organizacao);
+        Organizacao organizacaoSalva = organizacaoRepository.save(organizacao);
+
+        Carrinho novoCarrinho = new Carrinho(organizacaoSalva);
+        carrinhoRepository.save(novoCarrinho);
+
+        return organizacaoSalva;
     }
 
-    public Organizacao atualizarOrganizacao(String id, Organizacao organizacao) {
-        organizacao.setIdUsuario(id);
-        return organizacaoRepository.save(organizacao);
+    @Transactional
+    public Organizacao atualizarOrganizacao(String id, OrganizacaoRequestDTO dto) {
+        Organizacao orgExistente = organizacaoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Organização não encontrada"));
+
+        orgExistente.setEmail(dto.email());
+        orgExistente.setSenha(dto.senha());
+        orgExistente.setTelefone(dto.telefone());
+        orgExistente.setEndereco(dto.endereco());
+        orgExistente.setCnpj(dto.cnpj());
+        orgExistente.setRazaoSocial(dto.razaoSocial());
+
+        return organizacaoRepository.save(orgExistente);
     }
 
     public Organizacao findByRazaoSocial(String razaoSocial) {
