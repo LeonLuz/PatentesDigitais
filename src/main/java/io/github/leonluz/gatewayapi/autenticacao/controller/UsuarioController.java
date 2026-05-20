@@ -10,18 +10,14 @@ import io.github.leonluz.gatewayapi.autenticacao.model.Usuario;
 import io.github.leonluz.gatewayapi.autenticacao.service.NITService;
 import io.github.leonluz.gatewayapi.autenticacao.service.OrganizacaoService;
 import io.github.leonluz.gatewayapi.autenticacao.service.PesquisadorService;
-
 import io.github.leonluz.gatewayapi.autenticacao.service.UsuarioService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/usuarios")
+@RequestMapping("usuarios")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
-
     private final NITService nitService;
     private final PesquisadorService pesquisadorService;
     private final OrganizacaoService organizacaoService;
@@ -31,35 +27,12 @@ public class UsuarioController {
                              PesquisadorService pesquisadorService,
                              OrganizacaoService organizacaoService) {
 
-   
-    public UsuarioController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
+        this.nitService = nitService;
+        this.pesquisadorService = pesquisadorService;
+        this.organizacaoService = organizacaoService;
     }
 
-
-    // 1. adicionar usuário associado
-    @PostMapping("/{idInstituicao}/associados")
-    public ResponseEntity<String> adicionarUsuarioAssociado(
-            @PathVariable String idInstituicao, 
-            @RequestBody String idUsuarioParaVincular) { 
-        
-        usuarioService.adicionarAssociado(idInstituicao, idUsuarioParaVincular);
-        
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body("Usuário associado com sucesso à instituição.");
-    }
-
-    // excluir usuário associado
-    @DeleteMapping("/{idInstituicao}/associados/{idUsuarioAssociado}")
-    public ResponseEntity<String> excluirUsuarioAssociado(
-            @PathVariable String idInstituicao, 
-            @PathVariable String idUsuarioAssociado) {
-        
-        usuarioService.excluirAssociado(idInstituicao, idUsuarioAssociado);
-        
-        return ResponseEntity.ok("Vínculo do usuário removido com sucesso.");
-    }
-}
     @PostMapping("/nit")
     public NIT salvarNIT(@RequestBody NITRequestDTO dto) {
         return this.nitService.salvarNit(dto);
