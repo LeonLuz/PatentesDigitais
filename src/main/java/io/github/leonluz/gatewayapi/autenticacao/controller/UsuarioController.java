@@ -1,5 +1,6 @@
 package io.github.leonluz.gatewayapi.autenticacao.controller;
 
+import io.github.leonluz.gatewayapi.autenticacao.dto.NITRequestDTO;
 import io.github.leonluz.gatewayapi.autenticacao.model.NIT;
 import io.github.leonluz.gatewayapi.autenticacao.model.Organizacao;
 import io.github.leonluz.gatewayapi.autenticacao.model.Pesquisador;
@@ -31,8 +32,8 @@ public class UsuarioController {
     }
 
     @PostMapping("/nit")
-    public NIT salvarNIT(@RequestBody NIT nit) {
-        return this.nitService.salvarNit(nit);
+    public NIT salvarNIT(@RequestBody NITRequestDTO dto) {
+        return this.nitService.salvarNit(dto);
     }
 
     @PostMapping("/pesquisador")
@@ -56,8 +57,8 @@ public class UsuarioController {
     }
 
     @PutMapping("/nit/{id}")
-    public NIT atualizarNIT(@PathVariable("id") String id, @RequestBody NIT nit) {
-        return nitService.atualizarNit(id, nit);
+    public NIT atualizarNIT(@PathVariable("id") String id, @RequestBody NITRequestDTO dto) {
+        return nitService.atualizarNit(id, dto);
     }
 
     @PutMapping("/pesquisador/{id}")

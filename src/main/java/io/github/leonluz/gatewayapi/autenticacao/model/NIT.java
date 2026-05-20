@@ -1,5 +1,6 @@
 package io.github.leonluz.gatewayapi.autenticacao.model;
 
+import io.github.leonluz.gatewayapi.autenticacao.dto.NITRequestDTO;
 import jakarta.persistence.*;
 
 @Entity
@@ -8,15 +9,22 @@ import jakarta.persistence.*;
 @DiscriminatorValue("NIT")
 public class NIT extends Usuario {
 
-    @Column(name = "CNPJ") //unique = true)
+    @Column(name = "CNPJ", unique = true)
     private String cnpj;
 
-    @Column(name = "razao_social") //nullable = false)
+    @Column(name = "razao_social", nullable = false)
     private String razaoSocial;
 
-    public NIT() {
-
+    public NIT(NITRequestDTO dto) {
+        this.setEmail(dto.email());
+        this.setSenha(dto.senha());
+        this.setTelefone(dto.telefone());
+        this.setEndereco(dto.endereco());
+        this.setCnpj(dto.cnpj());
+        this.setRazaoSocial(dto.razaoSocial());
     }
+
+    public NIT() {}
 
     public void setCnpj(String cnpj) {
         this.cnpj = cnpj;

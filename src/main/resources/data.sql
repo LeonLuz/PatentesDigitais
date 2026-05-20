@@ -47,6 +47,7 @@ create table PATENTE
     area          varchar(150),
     valor         decimal(10, 2) not null,
     pesquisadores text,
+    documento     varchar(255),
     status        enum('RASCUNHO', 'REPROVADA', 'DISPONIVEL',
                 'EM_PROCESSO_DE_COMPRA', 'CEDIDA', 'LICENCIADA', 'EXCLUIDA') not null,
     CONSTRAINT fk_titular_patente
