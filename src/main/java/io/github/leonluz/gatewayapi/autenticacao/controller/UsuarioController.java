@@ -10,7 +10,6 @@ import io.github.leonluz.gatewayapi.autenticacao.model.Usuario;
 import io.github.leonluz.gatewayapi.autenticacao.service.NITService;
 import io.github.leonluz.gatewayapi.autenticacao.service.OrganizacaoService;
 import io.github.leonluz.gatewayapi.autenticacao.service.PesquisadorService;
-
 import io.github.leonluz.gatewayapi.autenticacao.service.UsuarioService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,92 +20,87 @@ import org.springframework.web.bind.annotation.*;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
-
     private final NITService nitService;
     private final PesquisadorService pesquisadorService;
     private final OrganizacaoService organizacaoService;
 
-
-    public UsuarioController(UsuarioService usuarioService,NITService nitService,
+    public UsuarioController(UsuarioService usuarioService,
+                             NITService nitService,
                              PesquisadorService pesquisadorService,
                              OrganizacaoService organizacaoService) {
-
-   
-    public UsuarioController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
+        this.nitService = nitService;
+        this.pesquisadorService = pesquisadorService;
+        this.organizacaoService = organizacaoService;
     }
 
-
-    // 1. adicionar usuário associado
     @PostMapping("/{idInstituicao}/associados")
     public ResponseEntity<String> adicionarUsuarioAssociado(
-            @PathVariable String idInstituicao, 
-            @RequestBody String idUsuarioParaVincular) { 
-        
+            @PathVariable String idInstituicao,
+            @RequestBody String idUsuarioParaVincular) {
+
         usuarioService.adicionarAssociado(idInstituicao, idUsuarioParaVincular);
-        
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body("Usuário associado com sucesso à instituição.");
     }
 
-    // excluir usuário associado
     @DeleteMapping("/{idInstituicao}/associados/{idUsuarioAssociado}")
     public ResponseEntity<String> excluirUsuarioAssociado(
-            @PathVariable String idInstituicao, 
+            @PathVariable String idInstituicao,
             @PathVariable String idUsuarioAssociado) {
-        
+
         usuarioService.excluirAssociado(idInstituicao, idUsuarioAssociado);
-        
         return ResponseEntity.ok("Vínculo do usuário removido com sucesso.");
     }
-}
+
     @PostMapping("/nit")
-    public NIT salvarNIT(@RequestBody NITRequestDTO dto) {
-        return this.nitService.salvarNit(dto);
+    public ResponseEntity<NIT> salvarNIT(@RequestBody NITRequestDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.nitService.salvarNit(dto));
     }
 
     @PostMapping("/pesquisador")
-    public Pesquisador salvarPesquisador(@RequestBody PesquisadorRequestDTO dto) {
-        return this.pesquisadorService.salvarPesquisador(dto);
+    public ResponseEntity<Pesquisador> salvarPesquisador(@RequestBody PesquisadorRequestDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.pesquisadorService.salvarPesquisador(dto));
     }
 
     @PostMapping("/organizacao")
-    public Organizacao salvarOrganizacao(@RequestBody OrganizacaoRequestDTO dto) {
-        return this.organizacaoService.salvarOrganizacao(dto);
+    public ResponseEntity<Organizacao> salvarOrganizacao(@RequestBody OrganizacaoRequestDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.organizacaoService.salvarOrganizacao(dto));
     }
 
     @GetMapping("/{id}")
-    public Usuario obterUsuarioPorId(@PathVariable("id") String id) {
-        return usuarioService.obterUsuarioPorId(id);
+    public ResponseEntity<Usuario> obterUsuarioPorId(@PathVariable("id") String id) {
+        return ResponseEntity.ok(usuarioService.obterUsuarioPorId(id));
     }
 
     @DeleteMapping("/{id}")
-    public void deletarUsuarioPorId(@PathVariable("id") String id) {
+    public ResponseEntity<Void> deletarUsuarioPorId(@PathVariable("id") String id) {
         usuarioService.deletarUsuarioPorId(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/nit/{id}")
-    public NIT atualizarNIT(@PathVariable("id") String id, @RequestBody NITRequestDTO dto) {
-        return nitService.atualizarNit(id, dto);
+    public ResponseEntity<NIT> atualizarNIT(@PathVariable("id") String id, @RequestBody NITRequestDTO dto) {
+        return ResponseEntity.ok(nitService.atualizarNit(id, dto));
     }
 
     @PutMapping("/pesquisador/{id}")
-    public Pesquisador atualizarPesquisador(@PathVariable("id") String id, @RequestBody PesquisadorRequestDTO dto) {
-        return pesquisadorService.atualizarPesquisador(id, dto);
+    public ResponseEntity<Pesquisador> atualizarPesquisador(@PathVariable("id") String id, @RequestBody PesquisadorRequestDTO dto) {
+        return ResponseEntity.ok(pesquisadorService.atualizarPesquisador(id, dto));
     }
 
     @PutMapping("/organizacao/{id}")
-    public Organizacao atualizarOrganizacao(@PathVariable("id") String id, @RequestBody OrganizacaoRequestDTO dto) {
-        return organizacaoService.atualizarOrganizacao(id, dto);
+    public ResponseEntity<Organizacao> atualizarOrganizacao(@PathVariable("id") String id, @RequestBody OrganizacaoRequestDTO dto) {
+        return ResponseEntity.ok(organizacaoService.atualizarOrganizacao(id, dto));
     }
 
     @GetMapping("/nit/buscar")
-    public NIT buscarRazaoSocialNit(@RequestParam("razaoSocial") String razaoSocial) {
-        return nitService.findByRazaoSocial(razaoSocial);
+    public ResponseEntity<NIT> buscarRazaoSocialNit(@RequestParam("razaoSocial") String razaoSocial) {
+        return ResponseEntity.ok(nitService.findByRazaoSocial(razaoSocial));
     }
 
     @GetMapping("/pesquisador/buscar")
-    public Pesquisador buscarPorNome(@RequestParam("nome") String nome) {
-        return pesquisadorService.findByNome(nome);
+    public ResponseEntity<Pesquisador> buscarPorNome(@RequestParam("nome") String nome) {
+        return ResponseEntity.ok(pesquisadorService.findByNome(nome));
     }
 }
