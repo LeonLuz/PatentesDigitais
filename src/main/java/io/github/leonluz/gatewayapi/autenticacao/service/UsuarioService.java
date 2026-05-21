@@ -1,5 +1,6 @@
 package io.github.leonluz.gatewayapi.autenticacao.service;
 
+import io.github.leonluz.gatewayapi.autenticacao.model.Usuario;
 import io.github.leonluz.gatewayapi.autenticacao.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +12,20 @@ public class UsuarioService {
 
     public UsuarioService(UsuarioRepository usuarioRepository) {
         this.usuarioRepository = usuarioRepository;
+    }
+
+    @Transactional(readOnly = true)
+    public Usuario obterUsuarioPorId(String id) {
+        return usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o ID: " + id));
+    }
+
+    @Transactional
+    public void deletarUsuarioPorId(String id) {
+        if (!usuarioRepository.existsById(id)) {
+            throw new RuntimeException("Usuário não encontrado para exclusão.");
+        }
+        usuarioRepository.deleteById(id);
     }
 
     @Transactional

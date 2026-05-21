@@ -2,7 +2,6 @@ package io.github.leonluz.gatewayapi.pedidos.repository;
 
 import io.github.leonluz.gatewayapi.pedidos.model.Aquisicao;
 import org.springframework.data.jpa.repository.JpaRepository;
-<<<<<<< HEAD
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,8 +19,4 @@ public interface AquisicaoRepository extends JpaRepository<Aquisicao, String> {
   void adicionarItemAquisicao(@Param("idItem") String idItem, @Param("idAquisicao") String idAquisicao,
       @Param("idPatente") String idPatente);
 }
-=======
 
-public interface AquisicaoRepository extends JpaRepository<Aquisicao, String> {
-}
->>>>>>> main

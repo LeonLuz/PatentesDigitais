@@ -1,16 +1,18 @@
 package io.github.leonluz.gatewayapi.pedidos.repository;
 
-<<<<<<< HEAD
-import io.github.leonluz.gatewayapi.patentes.model.Patente;
+import io.github.leonluz.gatewayapi.autenticacao.model.Usuario;
+import io.github.leonluz.gatewayapi.pedidos.model.Carrinho;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
 import java.util.List;
+import java.util.Optional;
 
 @Repository
-public interface CarrinhoRepository extends JpaRepository<Patente, String> {
+public interface CarrinhoRepository extends JpaRepository<Carrinho, String> {
     @Query(value = "SELECT id_carrinho FROM CARRINHO WHERE id_usuario = :idUsuario", nativeQuery = true)
     String buscarIdCarrinhoPorUsuario(@Param("idUsuario") String idUsuario);
 
@@ -35,15 +37,6 @@ public interface CarrinhoRepository extends JpaRepository<Patente, String> {
     @Modifying
     @Query(value = "DELETE FROM ITEM_CARRINHO WHERE id_carrinho = :idCarrinho", nativeQuery = true)
     void esvaziarCarrinho(@Param("idCarrinho") String idCarrinho);
-}
-=======
-import io.github.leonluz.gatewayapi.autenticacao.model.Usuario;
-import io.github.leonluz.gatewayapi.pedidos.model.Carrinho;
-import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
-
-public interface CarrinhoRepository extends JpaRepository<Carrinho, String> {
     Optional<Carrinho> findByUsuario(Usuario usuario);
 }
->>>>>>> main
