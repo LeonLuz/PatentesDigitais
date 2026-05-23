@@ -4,160 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mercado Digital de Patentes Acadêmicas</title>
-    <style>
-        :root {
-            --primary-color: #004a8d;
-            --secondary-color: #00a3e0;
-            --bg-light: #f4f7f6;
-            --text-dark: #333;
-            --success: #28a745;
-            --danger: #dc3545;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            background-color: var(--bg-light);
-            color: var(--text-dark);
-        }
-
-        /* NAVBAR */
-        .navbar {
-            background-color: white;
-            padding: 0 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            height: 70px;
-        }
-
-        .logo-container img { max-height: 55px; width: auto; cursor: pointer; }
-
-        .nav-menu { display: flex; align-items: center; }
-
-        .nav-menu a {
-            text-decoration: none;
-            color: var(--primary-color);
-            margin-left: 20px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-
-        .btn-register {
-            background-color: var(--primary-color);
-            color: white !important;
-            padding: 8px 15px;
-            border-radius: 5px;
-        }
-
-        /* SEÇÕES */
-        .page-section { display: none; padding: 2rem 5%; }
-        .active-section { display: block; }
-
-        /* FORMULÁRIOS */
-        .form-container {
-            max-width: 500px;
-            margin: 2rem auto;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-
-        .form-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; }
-        input, select, textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-sizing: border-box;
-        }
-
-        /* BOTÕES */
-        button {
-            padding: 12px 25px;
-            background-color: var(--secondary-color);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s;
-            width: 100%;
-        }
-
-        button:hover { background-color: #0081b3; }
-
-        .btn-add-cart {
-            background-color: var(--primary-color);
-            margin-top: 15px;
-        }
-
-        /* VITRINE */
-        .search-container {
-            padding: 3rem 5%;
-            background: linear-gradient(rgba(0,74,141,0.9), rgba(0,74,141,0.9)), url('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=1200');
-            background-size: cover;
-            color: white;
-            text-align: center;
-        }
-
-        .catalog {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 25px;
-            margin-top: 20px;
-        }
-
-        .patent-card {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            border-top: 5px solid var(--primary-color);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-
-        /* CARRINHO */
-        #cart-modal {
-            position: fixed;
-            right: -400px;
-            top: 0;
-            width: 350px;
-            height: 100%;
-            background: white;
-            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
-            transition: 0.4s;
-            padding: 20px;
-            z-index: 1001;
-        }
-        #cart-modal.active { right: 0; }
-
-        .cart-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
-            font-size: 0.9rem;
-        }
-
-        .btn-remove {
-            background-color: var(--danger);
-            width: auto;
-            padding: 5px 10px;
-            font-size: 0.8rem;
-        }
-
-        .hidden { display: none !important; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
@@ -165,14 +12,15 @@
         <div class="logo-container">
             <img src="logo.png" alt="Logo" onclick="showSection('home')">
         </div>
-        <div class="nav-menu">
-            <a onclick="showSection('home')">Vitrine</a>
-            <a id="nav-cart" onclick="toggleCart()">Carrinho (<span id="cart-count">0</span>)</a>
-            <a id="nav-nit" class="hidden" onclick="showSection('nit-panel')">Painel NIT</a>
-            <a id="nav-login" onclick="alert('Login em desenvolvimento')">Login</a>
-            <a id="nav-reg" class="btn-register" onclick="showSection('register-step1')">Cadastrar-se</a>
-            <a id="nav-logout" class="hidden" onclick="logout()">Sair</a>
-        </div>
+            <div class="nav-menu">
+                <a onclick="showSection('home')">Vitrine</a>
+                <a id="nav-cart" onclick="toggleCart()">Carrinho (<span id="cart-count">0</span>)</a>
+                <!-- O Painel NIT fica oculto por padrão -->
+                <a id="nav-nit" class="hidden" onclick="showSection('nit-panel')">Painel NIT</a>
+                <a id="nav-login" onclick="showSection('login-section')">Login</a>
+                <a id="nav-reg" class="btn-register" onclick="showSection('register-step1')">Cadastrar-se</a>
+                <a id="nav-logout" class="hidden" onclick="logout()">Sair</a>
+            </div>
     </nav>
 
     <section id="home" class="page-section active-section">
@@ -183,13 +31,24 @@
         <main class="catalog" id="patentCatalog"></main>
     </section>
 
+    <section id="login-section" class="page-section">
+        <div class="form-container">
+            <h2>Entrar no Sistema</h2>
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group"><label>E-mail</label><input type="email" id="login-email" required></div>
+                <div class="form-group"><label>Senha</label><input type="password" required></div>
+                <button type="submit">Entrar</button>
+                <button type="button" class="btn-cancel" onclick="showSection('home')">Cancelar</button>
+            </form>
+        </div>
+    </section>
+
     <section id="register-step1" class="page-section">
         <div class="form-container">
             <h2>Criar nova conta</h2>
-            <p>Selecione seu perfil de acesso:</p>
             <button onclick="showRegisterForm('Pesquisador')">Sou Pesquisador</button>
-            <button style="margin-top:10px;" onclick="showRegisterForm('Organização Interessada')">Sou uma Empresa/Organização</button>
-            <button style="margin-top:10px; background-color:#666;" onclick="showRegisterForm('NIT')">Sou Gestor do NIT</button>
+            <button class="btn-secondary" onclick="showRegisterForm('Organização Interessada')">Sou Empresa</button>
+            <button class="btn-nit" onclick="showRegisterForm('NIT')">Sou Gestor do NIT</button>
         </div>
     </section>
 
@@ -197,153 +56,39 @@
         <div class="form-container">
             <h2 id="reg-title">Cadastro</h2>
             <form onsubmit="handleRegistration(event)">
-                <div class="form-group"><label>Nome Completo</label><input type="text" required></div>
+                <div class="form-group"><label>Nome</label><input type="text" required></div>
                 <div class="form-group"><label id="label-doc">CPF/CNPJ</label><input type="text" required></div>
                 <div class="form-group"><label>E-mail</label><input type="email" id="reg-email" required></div>
                 <div class="form-group"><label>Senha</label><input type="password" required></div>
-                <button type="submit" style="background-color: var(--success);">Finalizar Cadastro</button>
-                <button type="button" style="background:none; color:#666; margin-top:10px;" onclick="showSection('register-step1')">Voltar</button>
+                <button type="submit">Finalizar</button>
+                <button type="button" class="btn-cancel" onclick="showSection('register-step1')">Voltar</button>
             </form>
         </div>
     </section>
 
     <section id="nit-panel" class="page-section">
-        <div class="form-container" style="max-width: 800px;">
-            <h2>Painel NIT - Cadastro de Ativos</h2>
+        <div class="form-container">
+            <h2>Painel NIT</h2>
             <form onsubmit="handlePatentSubmit(event)">
                 <div class="form-group"><label>Título</label><input type="text" id="p-title" required></div>
-                <div class="form-group">
-                    <label>Área</label>
-                    <select id="p-area"><option>Saúde</option><option>Alimentos</option><option>Tecnologia</option></select>
-                </div>
+                <div class="form-group"><label>Área</label><select id="p-area"><option>Saúde</option><option>Tecnologia</option></select></div>
                 <div class="form-group"><label>Inventores</label><input type="text" id="p-inv" required></div>
                 <div class="form-group"><label>Resumo</label><textarea id="p-desc" rows="3" required></textarea></div>
-                <button type="submit">Publicar</button>
+                <button type="submit">Publicar Ativo</button>
             </form>
         </div>
     </section>
 
     <aside id="cart-modal">
         <h2>Meu Carrinho</h2>
-        <div id="cart-items">
-            </div>
+        <div id="cart-items"></div>
         <div style="margin-top: 20px;">
-            <button onclick="alert('Processo iniciado!')">Finalizar Interesse</button>
-            <button style="background: #ccc; margin-top: 10px;" onclick="toggleCart()">Fechar</button>
+            <!-- Chame a função correta aqui -->
+            <button onclick="finalizarInteresse()">Finalizar Interesse</button>
+            <button class="btn-cancel" onclick="toggleCart()">Fechar</button>
         </div>
     </aside>
 
-    <script>
-        let patents = [
-            { id: 1, title: "Processo de obtenção de biomassa de fruta-pão", area: "Alimentos", inventor: "M.B.S. Feijó; I.L.G.T. Almeida", desc: "Produção de biomassa verde e madura para aplicações industriais." },
-            { id: 2, title: "Extrato contra o vírus HIV-1 a partir de produtos marinhos", area: "Saúde", inventor: "I.C.N.P. Paixão; V.L. Teixeira", desc: "Ação inibitória da replicação viral utilizando algas marinhas." },
-            { id: 3, title: "Ritmáximo: Software de educação musical", area: "Tecnologia", inventor: "F.A.P. Guilhon; A.C.S. Figueiredo", desc: "Software para desenvolvimento rítmico para deficientes visuais." },
-            { id: 4, title: "Iluminador Subcutâneo para Terapia Intravenosa", area: "Saúde", inventor: "E.C. Santana; N.M.A. Figueiredo", desc: "Dispositivo para facilitar a visualização da rede venosa." },
-            { id: 5, title: "Nursing Alert: Aplicativo de suporte clínico", area: "Tecnologia", inventor: "L.S. Andrade; R.F.A. Silva", desc: "Suporte à decisão clínica para diagnósticos de enfermagem." }
-        ];
-        
-        let cart = [];
-        let selectedRole = "";
-
-        function showSection(id) {
-            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active-section'));
-            document.getElementById(id).classList.add('active-section');
-        }
-
-        function showRegisterForm(role) {
-            selectedRole = role;
-            document.getElementById('reg-title').innerText = "Cadastro de " + role;
-            document.getElementById('label-doc').innerText = role === 'Organização Interessada' ? 'CNPJ' : 'CPF';
-            showSection('register-form');
-        }
-
-        function handleRegistration(event) {
-            event.preventDefault();
-            alert("Cadastro realizado!");
-            if(selectedRole === 'NIT') loginAsNIT(); else showSection('home');
-        }
-
-        function loginAsNIT() {
-            document.getElementById('nav-reg').classList.add('hidden');
-            document.getElementById('nav-login').classList.add('hidden');
-            document.getElementById('nav-cart').classList.add('hidden');
-            document.getElementById('nav-nit').classList.remove('hidden');
-            document.getElementById('nav-logout').classList.remove('hidden');
-            showSection('nit-panel');
-        }
-
-        function logout() {
-            document.getElementById('nav-reg').classList.remove('hidden');
-            document.getElementById('nav-login').classList.remove('hidden');
-            document.getElementById('nav-cart').classList.remove('hidden');
-            document.getElementById('nav-nit').classList.add('hidden');
-            document.getElementById('nav-logout').classList.add('hidden');
-            showSection('home');
-        }
-
-        function handlePatentSubmit(event) {
-            event.preventDefault();
-            const newP = {
-                id: patents.length + 1,
-                title: document.getElementById('p-title').value,
-                area: document.getElementById('p-area').value,
-                inventor: document.getElementById('p-inv').value,
-                desc: document.getElementById('p-desc').value
-            };
-            patents.push(newP);
-            renderPatents(patents);
-            showSection('home');
-        }
-
-        function renderPatents(data) {
-            const container = document.getElementById('patentCatalog');
-            container.innerHTML = '';
-            data.forEach(p => {
-                container.innerHTML += `
-                    <div class="patent-card">
-                        <div>
-                            <h3>${p.title}</h3>
-                            <p>${p.desc}</p>
-                            <small><strong>Inventores:</strong> ${p.inventor}</small>
-                        </div>
-                        <button class="btn-add-cart" onclick="addToCart(${p.id})">Adicionar ao Carrinho</button>
-                    </div>`;
-            });
-        }
-
-        function addToCart(id) {
-            if (!cart.some(c => c.id === id)) {
-                cart.push(patents.find(p => p.id === id));
-                updateCartUI();
-            }
-        }
-
-        // FUNÇÃO PARA REMOVER DO CARRINHO
-        function removeFromCart(id) {
-            cart = cart.filter(item => item.id !== id);
-            updateCartUI();
-        }
-
-        function updateCartUI() {
-            document.getElementById('cart-count').innerText = cart.length;
-            const itemsContainer = document.getElementById('cart-items');
-            
-            if (cart.length === 0) {
-                itemsContainer.innerHTML = "<p style='color:#888'>Seu carrinho está vazio.</p>";
-                return;
-            }
-
-            itemsContainer.innerHTML = cart.map(item => `
-                <div class="cart-item">
-                    <span>${item.title}</span>
-                    <button class="btn-remove" onclick="removeFromCart(${item.id})">Remover</button>
-                </div>
-            `).join('');
-        }
-
-        function toggleCart() { document.getElementById('cart-modal').classList.toggle('active'); }
-
-        renderPatents(patents);
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
