@@ -28,7 +28,19 @@ body {
     height: 70px;
 }
 
-.logo-container img { max-height: 55px; width: auto; cursor: pointer; }
+.logo-container {
+    display: flex;
+    align-items: center;
+    height: 70px;
+}
+
+.logo-container img { 
+    max-height: 50px; 
+    width: auto; 
+    cursor: pointer; 
+    display: block;
+}
+
 .nav-menu { display: flex; align-items: center; }
 
 .nav-menu a {
@@ -84,9 +96,21 @@ button {
 }
 
 button:hover { background-color: #0081b3; }
+
 .btn-add-cart {
     background-color: var(--primary-color);
     margin-top: 15px;
+}
+
+/* Botão de Cancelar específico */
+.btn-cancel {
+    background-color: #666 !important; /* Cor cinza para diferenciar */
+    margin-top: 15px !important;       /* Garante um espaçamento extra acima */
+}
+
+/* Caso queira um espaçamento entre dois botões empilhados */
+form button + button {
+    margin-top: 15px; 
 }
 
 /* VITRINE */
