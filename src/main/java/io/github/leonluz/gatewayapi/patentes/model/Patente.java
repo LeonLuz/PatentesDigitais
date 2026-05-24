@@ -15,7 +15,7 @@ import java.util.UUID;
 public class Patente {
     @Id
     @Column(name = "id_patente")
-    private String id;
+    private UUID id;
 
     @ManyToOne
     @JoinColumn(name = "id_titular")
@@ -55,7 +55,7 @@ public class Patente {
     private List<Pesquisador> pesquisadoresAssociados = new ArrayList<>();
 
     public Patente(PatenteRequestDTO dto) {
-        this.id = UUID.randomUUID().toString();
+        this.id = UUID.randomUUID();
         this.titulo = dto.titulo();
         this.numDeposito = dto.numDeposito();
         this.resumo = dto.resumo();
@@ -69,7 +69,7 @@ public class Patente {
 
     }
 
-    public void setId(String id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -113,7 +113,7 @@ public class Patente {
         this.pesquisadoresAssociados = pesquisadoresAssociados;
     }
 
-    public String getId() {
+    public UUID getId() {
         return id;
     }
 
@@ -161,7 +161,7 @@ public class Patente {
     public String toString() {
         return "Patente{" +
                 "id='" + id + '\'' +
-                ", idTitular='" + idTitular + '\'' +
+                ", idTitular='" + idTitular.getIdUsuario().toString() + '\'' +
                 ", titulo='" + titulo + '\'' +
                 ", numDeposito='" + numDeposito + '\'' +
                 ", resumo='" + resumo + '\'' +

@@ -15,7 +15,7 @@ public class Aquisicao {
 
     @Id
     @Column(name = "id_aquisicao")
-    private String idAquisicao;
+    private UUID idAquisicao;
 
     @ManyToOne
     @JoinColumn(name = "id_usuario")
@@ -36,7 +36,7 @@ public class Aquisicao {
     private List<ItemAquisicao> itens = new ArrayList<>();
 
     public Aquisicao(Usuario usuarioComprador) {
-        this.idAquisicao = UUID.randomUUID().toString();
+        this.idAquisicao = UUID.randomUUID();
         this.idUsuario = usuarioComprador;
         this.dataAquisicao = LocalDate.now();
         this.dataExpiracao = LocalDate.now().plusDays(3);
@@ -47,7 +47,7 @@ public class Aquisicao {
 
     }
 
-    public void setIdAquisicao(String idAquisicao) {
+    public void setIdAquisicao(UUID idAquisicao) {
         this.idAquisicao = idAquisicao;
     }
 
@@ -71,7 +71,7 @@ public class Aquisicao {
         this.itens = itens;
     }
 
-    public String getIdAquisicao() {
+    public UUID getIdAquisicao() {
         return idAquisicao;
     }
 

@@ -43,7 +43,7 @@ public class PatenteService {
     }
 
     @Transactional
-    public void atualizarStatus(String idPatente, StatusPatente novoStatus, String idUsuarioResponsavel) {
+    public void atualizarStatus(UUID idPatente, StatusPatente novoStatus, String idUsuarioResponsavel) {
         Patente patente = patenteRepository.findById(idPatente)
                 .orElseThrow(() -> new IllegalArgumentException("Patente não localizada no sistema."));
 
@@ -61,9 +61,9 @@ public class PatenteService {
     }
 
     @Transactional
-    public Patente salvarPatente(String idUsuario, PatenteRequestDTO dto) {
+    public Patente salvarPatente(UUID idUsuario, PatenteRequestDTO dto) {
         Patente patente = new Patente(dto);
-        patente.setId(UUID.randomUUID().toString());
+        patente.setId(UUID.randomUUID());
 
         Usuario titular = usuarioRepository.findById(dto.idTitular())
                 .orElseThrow(() -> new RuntimeException("Titular não encontrado"));
@@ -90,12 +90,12 @@ public class PatenteService {
     }
 
     @Transactional(readOnly = true)
-    public Patente buscarPatentePorId(String id) {
+    public Patente buscarPatentePorId(UUID id) {
         return patenteRepository.findById(id).orElse(null);
     }
 
     @Transactional
-    public Patente atualizarPatente(String id, PatenteRequestDTO dto) {
+    public Patente atualizarPatente(UUID id, PatenteRequestDTO dto) {
         Patente patenteExistente = patenteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Patente não encontrada"));
 
@@ -113,12 +113,12 @@ public class PatenteService {
     }
 
     @Transactional
-    public void deletarPatente(String id) {
+    public void deletarPatente(UUID id) {
         patenteRepository.deleteById(id);
     }
 
     @Transactional(readOnly = true)
-    public byte[] obterPdfDaPatente(String idPatente) {
+    public byte[] obterPdfDaPatente(UUID idPatente) {
         Patente patente = patenteRepository.findById(idPatente)
                 .orElseThrow(() -> new RuntimeException("Patente não encontrada"));
 

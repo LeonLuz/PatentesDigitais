@@ -1,20 +1,14 @@
-/* let patents = [
-    { id: 1, title: "Processo de obtenção de biomassa de fruta-pão", area: "Alimentos", inventor: "M.B.S. Feijó; I.L.G.T. Almeida", desc: "Produção de biomassa verde e madura para aplicações industriais." },
-    { id: 2, title: "Extrato contra o vírus HIV-1 a partir de produtos marinhos", area: "Saúde", inventor: "I.C.N.P. Paixão; V.L. Teixeira", desc: "Ação inibitória da replicação viral utilizando algas marinhas." },
-    { id: 3, title: "Ritmáximo: Software de educação musical", area: "Tecnologia", inventor: "F.A.P. Guilhon; A.C.S. Figueiredo", desc: "Software para desenvolvimento rítmico para deficientes visuais." },
-    { id: 4, title: "Iluminador Subcutâneo para Terapia Intravenosa", area: "Saúde", inventor: "E.C. Santana; N.M.A. Figueiredo", desc: "Dispositivo para facilitar a visualização da rede venosa." },
-    { id: 5, title: "Nursing Alert: Aplicativo de suporte clínico", area: "Tecnologia", inventor: "L.S. Andrade; R.F.A. Silva", desc: "Suporte à decisão clínica para diagnósticos de enfermagem." }
-];
+const API_BASE_URL = "http://localhost:8080/api";
+let patents = [];
 let cart = [];
-let currentUserRole = "VISITANTE"; */
+let currentUserRole = "VISITANTE";
+let loggedUserId = null;
 
-const API_BASE_URL = "http://localhost:8080/api"; // Ajustar conforme a porta do Java!!!
-let patents = []; // Começa vazio, será preenchido pelo servidor
 
 function showSection(id) {
     document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active-section'));
     document.getElementById(id).classList.add('active-section');
-    if(id === 'home') renderPatents(patents);
+    if (id === 'home') renderPatents(patents);
 }
 
 function showRegisterForm(role) {
@@ -23,160 +17,321 @@ function showRegisterForm(role) {
     showSection('register-form');
 }
 
-function handleRegistration(event) {
-    event.preventDefault();
-    alert("Cadastrado como " + currentUserRole);
-    currentUserRole === 'NIT' ? loginAsNIT() : loginAsUser(currentUserRole);
+function logout() {
+    location.reload();
 }
 
-function handleLogin(event) {
-    event.preventDefault();
-    const email = document.getElementById('login-email').value;
-    email.includes('nit') ? loginAsNIT() : loginAsUser("PESQUISADOR");
-}
 
 function loginAsNIT() {
     currentUserRole = "NIT";
-    
-    // Ocultar menus de visitante/comprador
     document.getElementById('nav-reg').classList.add('hidden');
     document.getElementById('nav-login').classList.add('hidden');
     document.getElementById('nav-cart').classList.add('hidden');
-    
-    // Mostrar menus do NIT
+
     document.getElementById('nav-nit').classList.remove('hidden');
     document.getElementById('nav-logout').classList.remove('hidden');
-    
+
     showSection('nit-panel');
-    renderPatents(patents); // Recarrega para remover botões da vitrine
+    renderPatents(patents);
 }
 
 function loginAsUser(role) {
     currentUserRole = role;
-    
-    // Ocultar menus de visitante/NIT
     document.getElementById('nav-reg').classList.add('hidden');
     document.getElementById('nav-login').classList.add('hidden');
     document.getElementById('nav-nit').classList.add('hidden');
-    
-    // Mostrar menus de usuário comum
+
     document.getElementById('nav-cart').classList.remove('hidden');
     document.getElementById('nav-logout').classList.remove('hidden');
-    
+
     showSection('home');
-    renderPatents(patents); // Recarrega para mostrar botões
+    renderPatents(patents);
 }
 
-function logout() { location.reload(); }
+// Requisições
 
-async function handlePatentSubmit(event) {
-    event.preventDefault();
-    const newP = {
-        title: document.getElementById('p-title').value,
-        area: document.getElementById('p-area').value,
-        inventor: document.getElementById('p-inv').value,
-        desc: document.getElementById('p-desc').value
-    };
-
-    const response = await fetch(`${API_BASE_URL}/patentes`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newP)
-    });
-
-    if (response.ok) {
-        alert("Publicado no Java com sucesso!");
-        fetchPatents(); // Recarrega a lista do servidor
-        showSection('home');
-    }
-}
-
+// Listar Patentes
 async function fetchPatents() {
     try {
         const response = await fetch(`${API_BASE_URL}/patentes`);
-        patents = await response.json(); // O Java retorna o JSON das patentes
+        if (!response.ok) throw new Error("Erro ao buscar patentes.");
+        patents = await response.json();
         renderPatents(patents);
     } catch (error) {
-        console.error("Erro ao buscar patentes:", error);
+        console.error("Erro ao carregar vitrine:", error);
     }
 }
 
-    function addToCart(id) {
-        // 1. Verificações de permissão
-        if (currentUserRole === "VISITANTE") {
-            alert("Atenção: Você precisa estar logado para adicionar patentes ao carrinho.");
-            showSection('login-section');
-            return;
-        }
+// Cadastro de Usuários
+async function handleRegistration(event) {
+    event.preventDefault();
 
-        if (currentUserRole === "NIT") {
-            alert("Gestores do NIT não realizam aquisições.");
-            return;
-        }
+    const nomeOuRazao = event.target[0].value;
+    const documento   = event.target[1].value;
+    const email       = document.getElementById('reg-email').value;
+    const senha       = event.target[3].value;
 
-        // 2. Verifica se a patente já está no carrinho
-        const itemExistente = cart.find(item => item.id === id);
-        if (itemExistente) {
-            alert("Esta patente já foi adicionada ao seu carrinho.");
-            return;
-        }
+    let endpointFinal = "";
+    let payload = { email, senha };
 
-        // 3. Adiciona a patente ao array
-        const patenteParaAdicionar = patents.find(p => p.id === id);
-        cart.push(patenteParaAdicionar);
-
-        // 4. Atualiza a interface
-        updateCartUI();
-        
-        // 5. ABRE O MODAL AUTOMATICAMENTE
-        toggleCart(); 
+    if (currentUserRole === 'Pesquisador') {
+        endpointFinal = "/pesquisador";
+        payload.nome = nomeOuRazao;
+        payload.cpf = documento;
+    } else if (currentUserRole === 'Organização Interessada') {
+        endpointFinal = "/organizacao";
+        payload.razaoSocial = nomeOuRazao;
+        payload.cnpj = documento;
+    } else if (currentUserRole === 'NIT') {
+        endpointFinal = "/nit";
+        payload.razaoSocial = nomeOuRazao;
+        payload.cnpj = documento;
     }
 
-    function toggleCart() { 
-        document.getElementById('cart-modal').classList.toggle('active'); 
-    }
+    try {
+        const response = await fetch(`${API_BASE_URL}/usuarios${endpointFinal}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
 
-    function removeFromCart(id) {
-        // Remove o item do array
-        cart = cart.filter(item => item.id !== id);
-        
-        // Atualiza a interface
-        updateCartUI();
-    }
+        if (response.status === 201) {
+            const usuarioCriado = await response.json();
+            alert(`${currentUserRole} cadastrado com sucesso!`);
 
-    function updateCartUI() {
-        const itemsContainer = document.getElementById('cart-items');
-        const countElement = document.getElementById('cart-count');
-        
-        countElement.innerText = cart.length;
-        
-        if (cart.length === 0) {
-            itemsContainer.innerHTML = "<p style='color:#888; padding: 10px;'>Seu carrinho está vazio.</p>";
+            // Captura o idUsuario salvo no banco
+            loggedUserId = usuarioCriado.idUsuario;
+
+            if (currentUserRole === 'NIT') {
+                loginAsNIT();
+            } else if (currentUserRole === 'Pesquisador') {
+                loginAsUser('PESQUISADOR');
+            } else {
+                loginAsUser('ORGANIZACAO');
+            }
         } else {
-            itemsContainer.innerHTML = cart.map(item => `
-                <div class="cart-item">
-                    <span>${item.title}</span>
-                    <!-- O ID precisa estar aqui -->
-                    <button class="btn-remove" onclick="removeFromCart(${item.id})">Remover</button>
-                </div>
-            `).join('');
+            const erroTexto = await response.text();
+            alert(`Falha no cadastro: ${erroTexto || 'Dados inválidos.'}`);
         }
+    } catch (error) {
+        console.error("Erro na requisição de cadastro:", error);
+        alert("Erro ao conectar com o servidor.");
+    }
+}
+
+// Login
+async function handleLogin(event) {
+    event.preventDefault();
+
+    const email = document.getElementById('login-email').value;
+    const senha = event.target[1].value;
+
+    const loginPayload = { email, senha };
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/usuarios/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(loginPayload)
+        });
+
+        if (response.ok) {
+            const usuario = await response.json();
+            loggedUserId = usuario.idUsuario;
+            const perfil = usuario.tipoPerfil;
+
+            alert(`Bem-vindo, ${usuario.razaoSocial || usuario.nome || "Usuário"}!`);
+
+            if (perfil === 'NIT') {
+                loginAsNIT();
+            } else {
+                loginAsUser(perfil);
+            }
+        } else {
+            const erroTexto = await response.text();
+            alert(`Falha na autenticação: ${erroTexto}`);
+        }
+    } catch (error) {
+        console.error("Erro na requisição:", error);
+        alert("Não foi possível conectar ao servidor.");
+    }
+}
+
+// Publicar patente pelo NIT
+async function handlePatentSubmit(event) {
+    event.preventDefault();
+
+    if (!loggedUserId) {
+        alert("Erro: ID do usuário gestor não identificado.");
+        return;
     }
 
-    function finalizarInteresse() {
-        // Verifica se o carrinho está vazio
-        if (cart.length === 0) {
-            alert("Seu carrinho está vazio! Adicione patentes antes de finalizar.");
-            return; // Interrompe a função
-        }
+    const dto = {
+        idTitular: loggedUserId,
+        titulo: document.getElementById('p-title').value,
+        numDeposito: "BR" + Math.floor(100000 + Math.random() * 900000),
+        resumo: document.getElementById('p-desc').value,
+        area: document.getElementById('p-area').value,
+        valor: 0.0,
+        pesquisadores: document.getElementById('p-inv').value,
+        documento: null,
+        idsPesquisadoresAssociados: []
+    };
 
-        // Se tiver itens, segue com o processo
-        alert("Manifestação de interesse enviada com sucesso! O NIT entrará em contato.");
-        
-        // Opcional: Limpa o carrinho após finalizar
-        cart = [];
-        updateCartUI();
-        toggleCart();
+    try {
+        const response = await fetch(`${API_BASE_URL}/patentes/${loggedUserId}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dto)
+        });
+
+        if (response.status === 201) {
+            alert("Patente publicada no banco de dados com sucesso!");
+            document.getElementById('nit-panel').querySelector('form').reset();
+            await fetchPatents(); // Atualiza a lista da Home
+            showSection('home');
+        } else {
+            alert("Erro ao publicar patente no servidor.");
+        }
+    } catch (error) {
+        console.error("Erro ao enviar dados da patente:", error);
+    }
+}
+
+// 5. ADICIONAR AO CARRINHO PERSISTIDO (POST /api/carrinho/{idUsuario}/itens)
+async function addToCart(idPatente) {
+    if (currentUserRole === "VISITANTE") {
+        alert("Atenção: Você precisa estar logado para adicionar patentes ao carrinho.");
+        showSection('login-section');
+        return;
     }
 
+    if (currentUserRole === "NIT") {
+        alert("Gestores do NIT não realizam aquisições.");
+        return;
+    }
+
+    const itemExistente = cart.find(item => item.idPatente === idPatente);
+    if (itemExistente) {
+        alert("Esta patente já foi adicionada ao seu carrinho.");
+        return;
+    }
+
+    try {
+        // Faz a requisição para salvar no banco de dados de acordo com o seu CarrinhoController
+        const response = await fetch(`${API_BASE_URL}/carrinho/${loggedUserId}/itens`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(idPatente) // Envia o UUID da patente direto no RequestBody
+        });
+
+        if (response.status === 201) {
+            const patenteParaAdicionar = patents.find(p => p.idPatente === idPatente);
+            cart.push(patenteParaAdicionar);
+            updateCartUI();
+            toggleCart();
+        } else {
+            alert("Não foi possível salvar o item no seu carrinho no servidor.");
+        }
+    } catch (error) {
+        console.error("Erro ao adicionar item ao carrinho remoto:", error);
+    }
+}
+
+// 6. REMOVER DO CARRINHO PERSISTIDO (DELETE /api/carrinho/{idUsuario}/itens/{idPatente})
+async function removeFromCart(idPatente) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/carrinho/${loggedUserId}/itens/${idPatente}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            cart = cart.filter(item => item.idPatente !== idPatente);
+            updateCartUI();
+        } else {
+            alert("Erro ao remover o item do servidor.");
+        }
+    } catch (error) {
+        console.error("Erro ao deletar item do carrinho remoto:", error);
+    }
+}
+
+// 7. FINALIZAR CHECKOUT / INTERESSE (POST /api/aquisicoes/checkout/{idUsuario})
+async function finalizarInteresse() {
+    if (cart.length === 0) {
+        alert("Seu carrinho está vazio! Adicione patentes antes de finalizar.");
+        return;
+    }
+
+    try {
+        // Dispara para o seu AquisicaoController enviando o idUsuario na URL
+        const response = await fetch(`${API_BASE_URL}/aquisicoes/checkout/${loggedUserId}`, {
+            method: 'POST'
+        });
+
+        if (response.status === 201) {
+            const mensagemSucesso = await response.text();
+            alert(mensagemSucesso); // Exibe: "Checkout finalizado com sucesso! ID da Transação..."
+
+            cart = [];
+            updateCartUI();
+            toggleCart();
+        } else {
+            alert("Erro ao finalizar o checkout da aquisição.");
+        }
+    } catch (error) {
+        console.error("Erro no processamento do checkout:", error);
+    }
+}
+
+// ==========================================
+// RENDERIZAÇÃO E UI LOCAL
+// ==========================================
+function toggleCart() {
+    document.getElementById('cart-modal').classList.toggle('active');
+}
+
+function updateCartUI() {
+    const itemsContainer = document.getElementById('cart-items');
+    const countElement = document.getElementById('cart-count');
+
+    countElement.innerText = cart.length;
+
+    if (cart.length === 0) {
+        itemsContainer.innerHTML = "<p style='color:#888; padding: 10px;'>Seu carrinho está vazio.</p>";
+    } else {
+        itemsContainer.innerHTML = cart.map(item => `
+            <div class="cart-item">
+                <span>${item.titulo}</span>
+                <button class="btn-remove" onclick="removeFromCart('${item.idPatente}')">Remover</button>
+            </div>
+        `).join('');
+    }
+}
+
+function renderPatents(listaPatentes) {
+    const catalog = document.getElementById('patentCatalog');
+    if (!catalog) return;
+
+    if (!listaPatentes || listaPatentes.length === 0) {
+        catalog.innerHTML = "<p style='grid-column: 1/-1; text-align:center; color:#666;'>Nenhuma patente cadastrada no momento.</p>";
+        return;
+    }
+
+    catalog.innerHTML = listaPatentes.map(p => `
+        <div class="patent-card">
+            <span class="badge">${p.area || 'Geral'}</span>
+            <h3>${p.titulo}</h3>
+            <p class="inventor"><strong>Inventores:</strong> ${p.pesquisadores || 'Não informado'}</p>
+            <p class="description">${p.resumo}</p>
+            ${currentUserRole !== 'NIT' ? `
+                <button class="btn-add-cart" onclick="addToCart('${p.idPatente}')">
+                    Manifestar Interesse
+                </button>
+            ` : ''}
+        </div>
+    `).join('');
+}
+
+// Inicializa a aplicação buscando dados do Java
 fetchPatents();

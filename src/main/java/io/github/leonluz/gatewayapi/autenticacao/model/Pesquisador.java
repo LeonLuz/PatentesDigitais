@@ -27,7 +27,7 @@ public class Pesquisador extends Usuario {
     private List<Patente> patentesAssociadas = new ArrayList<>();
 
     @ManyToOne
-    @JoinColumn(name = "id_nit")
+    @JoinColumn(name = "id_nit", columnDefinition = "BINARY(16)")
     @JsonIgnoreProperties("pesquisadores")
     private Usuario nit;
 
@@ -92,7 +92,6 @@ public class Pesquisador extends Usuario {
                 ", nome='" + nome + '\'' +
                 ", disponibilidadeConsultoria=" + disponibilidadeConsultoria +
                 ", patentesAssociadas=" + patentesAssociadas +
-                ", nit=" + nit +
                 '}';
     }
 }

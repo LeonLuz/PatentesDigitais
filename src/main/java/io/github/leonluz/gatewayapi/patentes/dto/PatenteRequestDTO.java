@@ -1,9 +1,10 @@
 package io.github.leonluz.gatewayapi.patentes.dto;
 
 import java.util.List;
+import java.util.UUID;
 
 public record PatenteRequestDTO(
-        String idTitular,
+        UUID idTitular,
         String titulo,
         String numDeposito,
         String resumo,
@@ -11,5 +12,5 @@ public record PatenteRequestDTO(
         Double valor,
         String pesquisadores,
         String documento,
-        List<String> idsPesquisadoresAssociados
+        List<UUID> idsPesquisadoresAssociados
 ) {}

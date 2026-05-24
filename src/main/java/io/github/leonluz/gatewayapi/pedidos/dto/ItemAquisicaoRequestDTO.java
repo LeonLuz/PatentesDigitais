@@ -3,10 +3,11 @@ package io.github.leonluz.gatewayapi.pedidos.dto;
 import io.github.leonluz.gatewayapi.pedidos.model.TipoAquisicao;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 public record ItemAquisicaoRequestDTO(
-        String idAquisicao,
-        String idPatente,
+        UUID idAquisicao,
+        UUID idPatente,
         TipoAquisicao tipoAquisicao,
         LocalDate fimLicenca
 ) {}

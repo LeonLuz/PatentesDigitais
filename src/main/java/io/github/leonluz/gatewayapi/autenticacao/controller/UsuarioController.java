@@ -1,5 +1,6 @@
 package io.github.leonluz.gatewayapi.autenticacao.controller;
 
+import io.github.leonluz.gatewayapi.autenticacao.dto.LoginRequestDTO;
 import io.github.leonluz.gatewayapi.autenticacao.dto.NITRequestDTO;
 import io.github.leonluz.gatewayapi.autenticacao.dto.OrganizacaoRequestDTO;
 import io.github.leonluz.gatewayapi.autenticacao.dto.PesquisadorRequestDTO;
@@ -14,6 +15,9 @@ import io.github.leonluz.gatewayapi.autenticacao.service.UsuarioService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -36,20 +40,20 @@ public class UsuarioController {
 
     @PostMapping("/{idInstituicao}/associados")
     public ResponseEntity<String> adicionarUsuarioAssociado(
-            @PathVariable String idInstituicao,
-            @RequestBody String idUsuarioParaVincular) {
+            @PathVariable UUID idInstituicao,
+            @RequestBody UUID idUsuarioParaVincular) {
 
-        usuarioService.adicionarAssociado(idInstituicao, idUsuarioParaVincular);
+        nitService.adicionarAssociado(idInstituicao, idUsuarioParaVincular);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body("Usuário associado com sucesso à instituição.");
     }
 
     @DeleteMapping("/{idInstituicao}/associados/{idUsuarioAssociado}")
     public ResponseEntity<String> excluirUsuarioAssociado(
-            @PathVariable String idInstituicao,
-            @PathVariable String idUsuarioAssociado) {
+            @PathVariable UUID idInstituicao,
+            @PathVariable UUID idUsuarioAssociado) {
 
-        usuarioService.excluirAssociado(idInstituicao, idUsuarioAssociado);
+        nitService.excluirAssociado(idInstituicao, idUsuarioAssociado);
         return ResponseEntity.ok("Vínculo do usuário removido com sucesso.");
     }
 
@@ -69,29 +73,40 @@ public class UsuarioController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Usuario> obterUsuarioPorId(@PathVariable("id") String id) {
+    public ResponseEntity<Usuario> obterUsuarioPorId(@PathVariable("id") UUID id) {
         return ResponseEntity.ok(usuarioService.obterUsuarioPorId(id));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarUsuarioPorId(@PathVariable("id") String id) {
+    public ResponseEntity<Void> deletarUsuarioPorId(@PathVariable("id") UUID id) {
         usuarioService.deletarUsuarioPorId(id);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/nit/{id}")
-    public ResponseEntity<NIT> atualizarNIT(@PathVariable("id") String id, @RequestBody NITRequestDTO dto) {
+    public ResponseEntity<NIT> atualizarNIT(@PathVariable("id") UUID id, @RequestBody NITRequestDTO dto) {
         return ResponseEntity.ok(nitService.atualizarNit(id, dto));
     }
 
     @PutMapping("/pesquisador/{id}")
-    public ResponseEntity<Pesquisador> atualizarPesquisador(@PathVariable("id") String id, @RequestBody PesquisadorRequestDTO dto) {
+    public ResponseEntity<Pesquisador> atualizarPesquisador(@PathVariable("id") UUID id, @RequestBody PesquisadorRequestDTO dto) {
         return ResponseEntity.ok(pesquisadorService.atualizarPesquisador(id, dto));
     }
 
     @PutMapping("/organizacao/{id}")
-    public ResponseEntity<Organizacao> atualizarOrganizacao(@PathVariable("id") String id, @RequestBody OrganizacaoRequestDTO dto) {
+    public ResponseEntity<Organizacao> atualizarOrganizacao(@PathVariable("id") UUID id, @RequestBody OrganizacaoRequestDTO dto) {
         return ResponseEntity.ok(organizacaoService.atualizarOrganizacao(id, dto));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> fazerLogin(@RequestBody LoginRequestDTO dto) {
+        try {
+            Usuario usuarioAutenticado = usuarioService.autenticar(dto.email(), dto.senha());
+            return ResponseEntity.ok(usuarioAutenticado);
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        }
     }
 
     @GetMapping("/nit/buscar")

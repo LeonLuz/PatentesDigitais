@@ -3,9 +3,10 @@
     import io.github.leonluz.gatewayapi.pedidos.model.StatusAquisicao;
 
     import java.util.List;
+    import java.util.UUID;
 
     public record AquisicaoRequestDTO(
-            String idUsuario,
+            UUID idUsuario,
             StatusAquisicao statusAquisicao,
             List<ItemAquisicaoRequestDTO> itensAquisicao) {
     }

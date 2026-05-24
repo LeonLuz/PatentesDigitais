@@ -26,7 +26,7 @@ public class PesquisadorService {
 
         Pesquisador pesquisador = new Pesquisador(dto);
 
-        pesquisador.setIdUsuario(UUID.randomUUID().toString());
+        pesquisador.setIdUsuario(UUID.randomUUID());
         pesquisador.setTipoPerfil(TipoPerfil.PESQUISADOR);
 
         Pesquisador pesquisadorSalvo = pesquisadorRepository.save(pesquisador);
@@ -38,7 +38,7 @@ public class PesquisadorService {
     }
 
     @Transactional
-    public Pesquisador atualizarPesquisador(String id, PesquisadorRequestDTO dto) {
+    public Pesquisador atualizarPesquisador(UUID id, PesquisadorRequestDTO dto) {
         Pesquisador pesquisadorExistente = pesquisadorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pesquisador não encontrado"));
 
@@ -49,7 +49,7 @@ public class PesquisadorService {
         pesquisadorExistente.setNome(dto.nome());
         pesquisadorExistente.setCpf(dto.cpf());
         pesquisadorExistente.setStatusAtivo(true);
-        pesquisadorExistente.setStatusAuth(false);
+        pesquisadorExistente.setStatusAuth(true);
 
         return pesquisadorRepository.save(pesquisadorExistente);
     }

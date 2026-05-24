@@ -1,6 +1,8 @@
 package io.github.leonluz.gatewayapi.pedidos.dto;
 
+import java.util.UUID;
+
 public record CarrinhoRequestDTO(
-        String idUsuario,
-        String idPatente
+        UUID idUsuario,
+        UUID idPatente
 ) {}
