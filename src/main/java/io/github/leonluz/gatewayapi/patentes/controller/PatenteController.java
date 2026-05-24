@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/patentes")
@@ -29,7 +30,7 @@ public class PatenteController {
 
     @PatchMapping("/{idPatente}/status")
     public ResponseEntity<String> alterarStatus(
-            @PathVariable String idPatente,
+            @PathVariable UUID idPatente,
             @RequestParam StatusPatente novoStatus,
             @RequestHeader("X-Usuario-Id") String idUsuarioResponsavel) {
 
@@ -38,31 +39,31 @@ public class PatenteController {
     }
 
     @PostMapping("/{id}")
-    public ResponseEntity<Patente> salvarPatente(@PathVariable("id") String idUsuario, @RequestBody PatenteRequestDTO dto) {
+    public ResponseEntity<Patente> salvarPatente(@PathVariable("id") UUID idUsuario, @RequestBody PatenteRequestDTO dto) {
         Patente novaPatente = patenteService.salvarPatente(idUsuario, dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(novaPatente);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Patente> buscarPatente(@PathVariable("id") String id) {
+    public ResponseEntity<Patente> buscarPatente(@PathVariable("id") UUID id) {
         Patente patente = patenteService.buscarPatentePorId(id);
         return patente != null ? ResponseEntity.ok(patente) : ResponseEntity.notFound().build();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Patente> atualizarPatente(@PathVariable("id") String id, @RequestBody PatenteRequestDTO dto) {
+    public ResponseEntity<Patente> atualizarPatente(@PathVariable("id") UUID id, @RequestBody PatenteRequestDTO dto) {
         Patente patenteAtualizada = patenteService.atualizarPatente(id, dto);
         return ResponseEntity.ok(patenteAtualizada);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarPatente(@PathVariable("id") String id) {
+    public ResponseEntity<Void> deletarPatente(@PathVariable("id") UUID id) {
         patenteService.deletarPatente(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}/baixar-pdf")
-    public void baixarPdf(@PathVariable String id, HttpServletResponse response) throws IOException {
+    public void baixarPdf(@PathVariable UUID id, HttpServletResponse response) throws IOException {
         byte[] pdfBytes = patenteService.obterPdfDaPatente(id);
 
         response.setContentType("application/pdf");

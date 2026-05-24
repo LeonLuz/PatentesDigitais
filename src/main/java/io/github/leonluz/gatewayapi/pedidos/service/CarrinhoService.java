@@ -30,7 +30,7 @@ public class CarrinhoService {
     }
 
     @Transactional
-    public void adicionarAoCarrinho(String idUsuario, String idPatente) {
+    public void adicionarAoCarrinho(UUID idUsuario, UUID idPatente) {
 
         Patente patente = patenteRepository.findById(idPatente)
                 .orElseThrow(() -> new IllegalArgumentException("Patente não localizada no sistema."));
@@ -39,7 +39,7 @@ public class CarrinhoService {
             throw new IllegalStateException("Esta patente não está disponível para negociação no momento.");
         }
 
-        String idCarrinho = carrinhoRepository.buscarIdCarrinhoPorUsuario(idUsuario);
+        UUID idCarrinho = carrinhoRepository.buscarIdCarrinhoPorUsuario(idUsuario);
         if (idCarrinho == null) {
             throw new IllegalStateException("Carrinho não encontrado para este usuário.");
         }
@@ -48,13 +48,13 @@ public class CarrinhoService {
             throw new IllegalStateException("Esta patente já consta no seu carrinho de compras.");
         }
 
-        String novoIdItem = UUID.randomUUID().toString();
+        UUID novoIdItem = UUID.randomUUID();
         carrinhoRepository.adicionarItem(novoIdItem, idCarrinho, idPatente);
     }
 
     @Transactional
-    public void removerDoCarrinho(String idUsuario, String idPatente) {
-        String idCarrinho = carrinhoRepository.buscarIdCarrinhoPorUsuario(idUsuario);
+    public void removerDoCarrinho(UUID idUsuario, UUID idPatente) {
+        UUID idCarrinho = carrinhoRepository.buscarIdCarrinhoPorUsuario(idUsuario);
 
         if (idCarrinho == null || carrinhoRepository.verificarItemExistente(idCarrinho, idPatente) == 0) {
             throw new IllegalArgumentException("A patente não foi encontrada no carrinho desta organização.");
@@ -82,7 +82,7 @@ public class CarrinhoService {
         }
 
         ItemCarrinho novoItem = new ItemCarrinho();
-        novoItem.setIdItem(UUID.randomUUID().toString());
+        novoItem.setIdItem(UUID.randomUUID());
         novoItem.setIdCarrinho(carrinho);
         novoItem.setIdPatente(patente);
 
@@ -92,7 +92,7 @@ public class CarrinhoService {
     }
 
     @Transactional(readOnly = true)
-    public Carrinho buscarPorUsuario(String idUsuario) {
+    public Carrinho buscarPorUsuario(UUID idUsuario) {
         Usuario usuario = usuarioRepository.findById(idUsuario)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 

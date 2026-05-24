@@ -3,13 +3,15 @@ package io.github.leonluz.gatewayapi.pedidos.model;
 import io.github.leonluz.gatewayapi.patentes.model.Patente;
 import jakarta.persistence.*;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "ITEM_CARRINHO")
 public class ItemCarrinho {
 
     @Id
     @Column(name = "id_item")
-    private String idItem;
+    private UUID idItem;
 
     @ManyToOne
     @JoinColumn(name = "id_carrinho", nullable = false)
@@ -24,7 +26,7 @@ public class ItemCarrinho {
     public ItemCarrinho() {
     }
 
-    public void setIdItem(String idItem) {
+    public void setIdItem(UUID idItem) {
         this.idItem = idItem;
     }
 
@@ -36,7 +38,7 @@ public class ItemCarrinho {
         this.idPatente = idPatente;
     }
 
-    public String getIdItem() {
+    public UUID getIdItem() {
         return idItem;
     }
 

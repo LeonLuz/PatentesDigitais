@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.OffsetDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name="USUARIO")
@@ -12,13 +13,13 @@ import java.time.OffsetDateTime;
 public abstract class Usuario {
 
     @Id
-    @Column(name = "id_usuario")
-    private String idUsuario;
+    @Column(name = "id_usuario", columnDefinition = "BINARY(16)")
+    private UUID idUsuario;
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true, nullable = false)
     private String email;
 
-    @Column(name = "senha")
+    @Column(name = "senha", nullable = false)
     private String senha;
 
     @Column(name = "telefone")
@@ -45,7 +46,7 @@ public abstract class Usuario {
 
     }
 
-    public void setIdUsuario(String idUsuario) {
+    public void setIdUsuario(UUID idUsuario) {
         this.idUsuario = idUsuario;
     }
 
@@ -81,7 +82,7 @@ public abstract class Usuario {
         this.dataCriacao = dataCriacao;
     }
 
-    public String getIdUsuario() {
+    public UUID getIdUsuario() {
         return idUsuario;
     }
 

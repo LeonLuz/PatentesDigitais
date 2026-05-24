@@ -37,22 +37,22 @@ public class AquisicaoService {
     }
 
     @Transactional
-    public String finalizarCheckout(String idUsuario) {
+    public UUID finalizarCheckout(UUID idUsuario) {
 
-        String idCarrinho = carrinhoRepository.buscarIdCarrinhoPorUsuario(idUsuario);
+        UUID idCarrinho = carrinhoRepository.buscarIdCarrinhoPorUsuario(idUsuario);
         if (idCarrinho == null) {
             throw new IllegalStateException("Nenhum carrinho ativo encontrado para este usuário.");
         }
 
-        List<String> idsPatentes = carrinhoRepository.listarItensDoCarrinho(idCarrinho);
+        List<UUID> idsPatentes = carrinhoRepository.listarItensDoCarrinho(idCarrinho);
         if (idsPatentes.isEmpty()) {
             throw new IllegalStateException("O carrinho está vazio. Adicione patentes antes de finalizar.");
         }
 
-        String idAquisicao = UUID.randomUUID().toString();
+        UUID idAquisicao = UUID.randomUUID();
         aquisicaoRepository.criarAquisicao(idAquisicao, idUsuario);
 
-        for (String idPatente : idsPatentes) {
+        for (UUID idPatente : idsPatentes) {
             Patente patente = patenteRepository.findById(idPatente)
                     .orElseThrow(() -> new IllegalArgumentException("Patente não encontrada no banco."));
 
@@ -62,7 +62,7 @@ public class AquisicaoService {
             }
 
 
-            String idItemAquisicao = UUID.randomUUID().toString();
+            UUID idItemAquisicao = UUID.randomUUID();
             aquisicaoRepository.adicionarItemAquisicao(idItemAquisicao, idAquisicao, idPatente);
 
             patente.setStatus(StatusPatente.EM_PROCESSO_DE_COMPRA);
@@ -88,7 +88,7 @@ public class AquisicaoService {
                         .orElseThrow(() -> new RuntimeException("Patente não encontrada"));
 
                 ItemAquisicao item = new ItemAquisicao();
-                item.setIdItem(UUID.randomUUID().toString());
+                item.setIdItem(UUID.randomUUID());
                 item.setIdAquisicao(aquisicao);
                 item.setPatente(patente);
                 item.setTipoAquisicao(itemDto.tipoAquisicao());
@@ -102,7 +102,7 @@ public class AquisicaoService {
     }
 
     @Transactional(readOnly = true)
-    public Aquisicao buscarPorId(String id) {
+    public Aquisicao buscarPorId(UUID id) {
         return aquisicaoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Aquisição não encontrada"));
     }

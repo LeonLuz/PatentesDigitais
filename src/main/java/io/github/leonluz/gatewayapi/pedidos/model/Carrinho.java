@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "CARRINHO")
@@ -13,7 +14,7 @@ public class Carrinho {
 
     @Id
     @Column(name = "id_carrinho")
-    private String idCarrinho;
+    private UUID idCarrinho;
 
     @OneToOne
     @JoinColumn(name = "id_usuario", unique = true, nullable = false)
@@ -24,7 +25,7 @@ public class Carrinho {
     private List<ItemCarrinho> itens = new ArrayList<>();
 
     public Carrinho(Usuario usuario) {
-        this.idCarrinho = java.util.UUID.randomUUID().toString();
+        this.idCarrinho = java.util.UUID.randomUUID();
         this.usuario = usuario;
     }
 
@@ -32,7 +33,7 @@ public class Carrinho {
 
     }
 
-    public void setIdCarrinho(String idCarrinho) {
+    public void setIdCarrinho(UUID idCarrinho) {
         this.idCarrinho = idCarrinho;
     }
 
@@ -44,7 +45,7 @@ public class Carrinho {
         this.itens = itens;
     }
 
-    public String getIdCarrinho() {
+    public UUID getIdCarrinho() {
         return idCarrinho;
     }
 

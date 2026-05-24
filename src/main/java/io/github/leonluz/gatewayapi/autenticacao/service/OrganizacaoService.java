@@ -26,10 +26,10 @@ public class OrganizacaoService {
 
         Organizacao organizacao = new Organizacao(dto);
 
-        organizacao.setIdUsuario(UUID.randomUUID().toString());
+        organizacao.setIdUsuario(UUID.randomUUID());
         organizacao.setTipoPerfil(TipoPerfil.ORGANIZACAO);
         organizacao.setStatusAtivo(true);
-        organizacao.setStatusAuth(false);
+        organizacao.setStatusAuth(true);
 
         Organizacao organizacaoSalva = organizacaoRepository.save(organizacao);
 
@@ -40,7 +40,7 @@ public class OrganizacaoService {
     }
 
     @Transactional
-    public Organizacao atualizarOrganizacao(String id, OrganizacaoRequestDTO dto) {
+    public Organizacao atualizarOrganizacao(UUID id, OrganizacaoRequestDTO dto) {
         Organizacao orgExistente = organizacaoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Organização não encontrada"));
 

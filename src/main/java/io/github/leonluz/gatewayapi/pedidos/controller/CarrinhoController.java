@@ -5,6 +5,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/carrinho")
 public class CarrinhoController {
@@ -17,8 +19,8 @@ public class CarrinhoController {
 
     @PostMapping("/{idUsuario}/itens")
     public ResponseEntity<String> adicionar(
-            @PathVariable String idUsuario,
-            @RequestBody String idPatente) {
+            @PathVariable UUID idUsuario,
+            @RequestBody UUID idPatente) {
 
         carrinhoService.adicionarAoCarrinho(idUsuario, idPatente);
         return ResponseEntity.status(HttpStatus.CREATED).body("Patente adicionada ao carrinho de compras.");
@@ -26,8 +28,8 @@ public class CarrinhoController {
 
     @DeleteMapping("/{idUsuario}/itens/{idPatente}")
     public ResponseEntity<String> remover(
-            @PathVariable String idUsuario,
-            @PathVariable String idPatente) {
+            @PathVariable UUID idUsuario,
+            @PathVariable UUID idPatente) {
 
         carrinhoService.removerDoCarrinho(idUsuario, idPatente);
         return ResponseEntity.ok("Patente removida do carrinho.");

@@ -10,33 +10,35 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
-public interface CarrinhoRepository extends JpaRepository<Carrinho, String> {
+public interface CarrinhoRepository extends JpaRepository<Carrinho, UUID> {
+
     @Query(value = "SELECT id_carrinho FROM CARRINHO WHERE id_usuario = :idUsuario", nativeQuery = true)
-    String buscarIdCarrinhoPorUsuario(@Param("idUsuario") String idUsuario);
+    UUID buscarIdCarrinhoPorUsuario(@Param("idUsuario") UUID idUsuario);
 
     @Modifying
     @Query(value = "INSERT INTO CARRINHO (id_carrinho, id_usuario) VALUES (:idCarrinho, :idUsuario)", nativeQuery = true)
-    void criarCarrinho(@Param("idCarrinho") String idCarrinho, @Param("idUsuario") String idUsuario);
+    void criarCarrinho(@Param("idCarrinho") UUID idCarrinho, @Param("idUsuario") UUID idUsuario);
 
     @Modifying
     @Query(value = "INSERT INTO ITEM_CARRINHO (id_item, id_carrinho, id_patente) VALUES (:idItem, :idCarrinho, :idPatente)", nativeQuery = true)
-    void adicionarItem(@Param("idItem") String idItem, @Param("idCarrinho") String idCarrinho, @Param("idPatente") String idPatente);
+    void adicionarItem(@Param("idItem") UUID idItem, @Param("idCarrinho") UUID idCarrinho, @Param("idPatente") UUID idPatente);
 
     @Modifying
     @Query(value = "DELETE FROM ITEM_CARRINHO WHERE id_carrinho = :idCarrinho AND id_patente = :idPatente", nativeQuery = true)
-    void removerItem(@Param("idCarrinho") String idCarrinho, @Param("idPatente") String idPatente);
+    void removerItem(@Param("idCarrinho") UUID idCarrinho, @Param("idPatente") UUID idPatente);
 
     @Query(value = "SELECT COUNT(*) FROM ITEM_CARRINHO WHERE id_carrinho = :idCarrinho AND id_patente = :idPatente", nativeQuery = true)
-    int verificarItemExistente(@Param("idCarrinho") String idCarrinho, @Param("idPatente") String idPatente);
+    int verificarItemExistente(@Param("idCarrinho") UUID idCarrinho, @Param("idPatente") UUID idPatente);
 
     @Query(value = "SELECT id_patente FROM ITEM_CARRINHO WHERE id_carrinho = :idCarrinho", nativeQuery = true)
-    List<String> listarItensDoCarrinho(@Param("idCarrinho") String idCarrinho);
+    List<UUID> listarItensDoCarrinho(@Param("idCarrinho") UUID idCarrinho);
 
     @Modifying
     @Query(value = "DELETE FROM ITEM_CARRINHO WHERE id_carrinho = :idCarrinho", nativeQuery = true)
-    void esvaziarCarrinho(@Param("idCarrinho") String idCarrinho);
+    void esvaziarCarrinho(@Param("idCarrinho") UUID idCarrinho);
 
     Optional<Carrinho> findByUsuario(Usuario usuario);
 }
