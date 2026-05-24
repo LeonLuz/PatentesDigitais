@@ -48,19 +48,9 @@ function loginAsUser(role) {
     renderPatents(patents);
 }
 
-// Requisições
-
-// Listar Patentes
-async function fetchPatents() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/patentes`);
-        if (!response.ok) throw new Error("Erro ao buscar patentes.");
-        patents = await response.json();
-        renderPatents(patents);
-    } catch (error) {
-        console.error("Erro ao carregar vitrine:", error);
-    }
-}
+// =========================================================================
+// REQUISITIONS: USUARIOS (UsuarioController)
+// =========================================================================
 
 // Cadastro de Usuários
 async function handleRegistration(event) {
@@ -99,7 +89,6 @@ async function handleRegistration(event) {
             const usuarioCriado = await response.json();
             alert(`${currentUserRole} cadastrado com sucesso!`);
 
-            // Captura o idUsuario salvo no banco
             loggedUserId = usuarioCriado.idUsuario;
 
             if (currentUserRole === 'NIT') {
@@ -157,6 +146,152 @@ async function handleLogin(event) {
     }
 }
 
+// Obter Usuário por ID
+async function obterUsuarioPorId(idUsuario) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/usuarios/${idUsuario}`);
+        if (!response.ok) throw new Error("Usuário não encontrado.");
+        return await response.json();
+    } catch (error) {
+        console.error("Erro ao obter perfil do usuário:", error);
+    }
+}
+
+// Atualizar Usuários na página de Conta (Progressivo com telefone, endereço e consultoria)
+async function atualizarUsuarioLogado() {
+    if (!loggedUserId) {
+        alert("Erro: Nenhum usuário autenticado.");
+        return;
+    }
+
+    // Captura os novos campos secundários presentes na página de conta
+    const email    = document.getElementById('edit-email').value;
+    const telefone = document.getElementById('edit-telefone').value;
+    const endereco = document.getElementById('edit-endereco').value;
+
+    let endpoint = "";
+    let payloadDTO = { email, telefone, endereco };
+
+    // Injeta os dados específicos e polimórficos de cada perfil na carga útil
+    if (currentUserRole === 'PESQUISADOR') {
+        endpoint = `/pesquisador/${loggedUserId}`;
+        payloadDTO.nome = document.getElementById('edit-nome').value;
+        payloadDTO.cpf  = document.getElementById('edit-documento').value;
+        // Captura o booleano do checkbox de consultoria do pesquisador
+        payloadDTO.disponibilidadeConsultoria = document.getElementById('edit-consultoria').checked;
+
+    } else if (currentUserRole === 'NIT') {
+        endpoint = `/nit/${loggedUserId}`;
+        payloadDTO.razaoSocial = document.getElementById('edit-nome').value;
+        payloadDTO.cnpj        = document.getElementById('edit-documento').value;
+
+    } else if (currentUserRole === 'ORGANIZACAO') {
+        endpoint = `/organizacao/${loggedUserId}`;
+        payloadDTO.razaoSocial = document.getElementById('edit-nome').value;
+        payloadDTO.cnpj        = document.getElementById('edit-documento').value;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/usuarios${endpoint}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payloadDTO)
+        });
+
+        if (response.ok) {
+            alert("Dados cadastrais atualizados com sucesso!");
+            return await response.json();
+        } else {
+            const erroTexto = await response.text();
+            alert(`Falha ao atualizar dados: ${erroTexto}`);
+        }
+    } catch (error) {
+        console.error("Erro ao atualizar cadastro:", error);
+        alert("Erro de conexão ao salvar modificações.");
+    }
+}
+
+// Excluir Usuário Conta
+async function deletarUsuarioLogado() {
+    if (!loggedUserId || !confirm("Tem certeza que deseja desativar/deletar sua conta?")) return;
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/usuarios/${loggedUserId}`, {
+            method: 'DELETE'
+        });
+        if (response.ok) {
+            alert("Sua conta foi excluída com sucesso.");
+            logout();
+        }
+    } catch (error) {
+        console.error("Erro ao deletar usuário:", error);
+    }
+}
+
+// Buscar NIT por Razão Social
+async function buscarNitPorRazaoSocial(razaoSocial) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/usuarios/nit/buscar?razaoSocial=${encodeURIComponent(razaoSocial)}`);
+        if (response.ok) return await response.json();
+    } catch (error) {
+        console.error("Erro ao buscar NIT:", error);
+    }
+}
+
+// Buscar Pesquisador por Nome
+async function buscarPesquisadorPorNome(nome) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/usuarios/pesquisador/buscar?nome=${encodeURIComponent(nome)}`);
+        if (response.ok) return await response.json();
+    } catch (error) {
+        console.error("Erro ao buscar pesquisador:", error);
+    }
+}
+
+// Adicionar Vínculo de Usuário Associado ao NIT
+async function vincularUsuarioAoNit(idUsuarioParaVincular) {
+    if (currentUserRole !== 'NIT' || !loggedUserId) return;
+    try {
+        const response = await fetch(`${API_BASE_URL}/usuarios/${loggedUserId}/associados`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(idUsuarioParaVincular)
+        });
+        if (response.status === 201) alert(await response.text());
+    } catch (error) {
+        console.error("Erro ao vincular associado:", error);
+    }
+}
+
+// Remover Vínculo de Usuário Associado do NIT
+async function desvincularUsuarioDoNit(idUsuarioAssociado) {
+    if (currentUserRole !== 'NIT' || !loggedUserId) return;
+    try {
+        const response = await fetch(`${API_BASE_URL}/usuarios/${loggedUserId}/associados/${idUsuarioAssociado}`, {
+            method: 'DELETE'
+        });
+        if (response.ok) alert(await response.text());
+    } catch (error) {
+        console.error("Erro ao desvincular associado:", error);
+    }
+}
+
+// =========================================================================
+// REQUISITIONS: PATENTES (PatenteController)
+// =========================================================================
+
+// Listar Patentes
+async function fetchPatents() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/patentes`);
+        if (!response.ok) throw new Error("Erro ao buscar patentes.");
+        patents = await response.json();
+        renderPatents(patents);
+    } catch (error) {
+        console.error("Erro ao carregar vitrine:", error);
+    }
+}
+
 // Publicar patente pelo NIT
 async function handlePatentSubmit(event) {
     event.preventDefault();
@@ -167,7 +302,6 @@ async function handlePatentSubmit(event) {
     }
 
     const dto = {
-        idTitular: loggedUserId,
         titulo: document.getElementById('p-title').value,
         numDeposito: "BR" + Math.floor(100000 + Math.random() * 900000),
         resumo: document.getElementById('p-desc').value,
@@ -188,7 +322,7 @@ async function handlePatentSubmit(event) {
         if (response.status === 201) {
             alert("Patente publicada no banco de dados com sucesso!");
             document.getElementById('nit-panel').querySelector('form').reset();
-            await fetchPatents(); // Atualiza a lista da Home
+            await fetchPatents();
             showSection('home');
         } else {
             alert("Erro ao publicar patente no servidor.");
@@ -198,7 +332,78 @@ async function handlePatentSubmit(event) {
     }
 }
 
-// 5. ADICIONAR AO CARRINHO PERSISTIDO (POST /api/carrinho/{idUsuario}/itens)
+// Buscar Patente por ID específico
+async function buscarPatentePorId(idPatente) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/patentes/${idPatente}`);
+        if (response.ok) return await response.json();
+    } catch (error) {
+        console.error("Erro ao buscar detalhes da patente:", error);
+    }
+}
+
+// Atualizar Patente Existente
+async function atualizarDadosPatente(idPatente, patenteRequestDTO) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/patentes/${idPatente}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(patenteRequestDTO)
+        });
+        if (response.ok) {
+            alert("Dados da patente updated.");
+            await fetchPatents();
+        }
+    } catch (error) {
+        console.error("Erro na atualização da patente:", error);
+    }
+}
+
+// Alterar Status da Patente (Fluxo de validação interna de negócio)
+async function alterarStatusPatente(idPatente, novoStatus) {
+    if (!loggedUserId) return;
+    try {
+        const response = await fetch(`${API_BASE_URL}/patentes/${idPatente}/status?novoStatus=${novoStatus}`, {
+            method: 'PATCH',
+            headers: {
+                'X-Usuario-Id': loggedUserId.toString()
+            }
+        });
+        if (response.ok) {
+            alert(await response.text());
+            await fetchPatents();
+        }
+    } catch (error) {
+        console.error("Erro ao alterar status da patente:", error);
+    }
+}
+
+// Deletar Patente do Repositório
+async function deletarPatente(idPatente) {
+    if (!confirm("Deseja realmente remover esta patente de forma permanente?")) return;
+    try {
+        const response = await fetch(`${API_BASE_URL}/patentes/${idPatente}`, {
+            method: 'DELETE'
+        });
+        if (response.status === 204 || response.status === 200) {
+            alert("Patente removida com sucesso.");
+            await fetchPatents();
+        }
+    } catch (error) {
+        console.error("Erro ao excluir patente:", error);
+    }
+}
+
+// Baixar Documentação Técnica / PDF da Patente
+function baixarPdfPatente(idPatente) {
+    window.open(`${API_BASE_URL}/patentes/${idPatente}/baixar-pdf`, '_blank');
+}
+
+// =========================================================================
+// REQUISITIONS: CARRINHO (CarrinhoController)
+// =========================================================================
+
+// Adicionar item ao Carrinho Remoto
 async function addToCart(idPatente) {
     if (currentUserRole === "VISITANTE") {
         alert("Atenção: Você precisa estar logado para adicionar patentes ao carrinho.");
@@ -211,22 +416,21 @@ async function addToCart(idPatente) {
         return;
     }
 
-    const itemExistente = cart.find(item => item.idPatente === idPatente);
+    const itemExistente = cart.find(item => item.id === idPatente);
     if (itemExistente) {
         alert("Esta patente já foi adicionada ao seu carrinho.");
         return;
     }
 
     try {
-        // Faz a requisição para salvar no banco de dados de acordo com o seu CarrinhoController
         const response = await fetch(`${API_BASE_URL}/carrinho/${loggedUserId}/itens`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(idPatente) // Envia o UUID da patente direto no RequestBody
+            body: JSON.stringify(idPatente)
         });
 
         if (response.status === 201) {
-            const patenteParaAdicionar = patents.find(p => p.idPatente === idPatente);
+            const patenteParaAdicionar = patents.find(p => p.id === idPatente);
             cart.push(patenteParaAdicionar);
             updateCartUI();
             toggleCart();
@@ -238,7 +442,7 @@ async function addToCart(idPatente) {
     }
 }
 
-// 6. REMOVER DO CARRINHO PERSISTIDO (DELETE /api/carrinho/{idUsuario}/itens/{idPatente})
+// Remover item do Carrinho Remoto
 async function removeFromCart(idPatente) {
     try {
         const response = await fetch(`${API_BASE_URL}/carrinho/${loggedUserId}/itens/${idPatente}`, {
@@ -246,7 +450,7 @@ async function removeFromCart(idPatente) {
         });
 
         if (response.ok) {
-            cart = cart.filter(item => item.idPatente !== idPatente);
+            cart = cart.filter(item => item.id !== idPatente);
             updateCartUI();
         } else {
             alert("Erro ao remover o item do servidor.");
@@ -256,7 +460,11 @@ async function removeFromCart(idPatente) {
     }
 }
 
-// 7. FINALIZAR CHECKOUT / INTERESSE (POST /api/aquisicoes/checkout/{idUsuario})
+// =========================================================================
+// REQUISITIONS: AQUISICOES & CHECKOUT (AquisicaoController)
+// =========================================================================
+
+// Finalizar Checkout de Interesse das patentes alocadas no carrinho
 async function finalizarInteresse() {
     if (cart.length === 0) {
         alert("Seu carrinho está vazio! Adicione patentes antes de finalizar.");
@@ -264,14 +472,13 @@ async function finalizarInteresse() {
     }
 
     try {
-        // Dispara para o seu AquisicaoController enviando o idUsuario na URL
         const response = await fetch(`${API_BASE_URL}/aquisicoes/checkout/${loggedUserId}`, {
             method: 'POST'
         });
 
         if (response.status === 201) {
             const mensagemSucesso = await response.text();
-            alert(mensagemSucesso); // Exibe: "Checkout finalizado com sucesso! ID da Transação..."
+            alert(mensagemSucesso);
 
             cart = [];
             updateCartUI();
@@ -284,9 +491,36 @@ async function finalizarInteresse() {
     }
 }
 
-// ==========================================
-// RENDERIZAÇÃO E UI LOCAL
-// ==========================================
+// Forçar a criação de uma aquisição estruturada direta via DTO externo
+async function criarAquisicaoDireta(aquisicaoRequestDTO) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/aquisicoes`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(aquisicaoRequestDTO)
+        });
+        if (response.status === 201) {
+            return await response.json();
+        }
+    } catch (error) {
+        console.error("Erro ao criar aquisição externa direta:", error);
+    }
+}
+
+// Buscar Histórico de Transação / Detalhes de Aquisição por ID
+async function buscarAquisicaoPorId(idAquisicao) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/aquisicoes/${idAquisicao}`);
+        if (response.ok) return await response.json();
+    } catch (error) {
+        console.error("Erro ao resgatar dados da aquisição:", error);
+    }
+}
+
+// =========================================================================
+// RENDERIZAÇÃO E INTERFACE GRÁFICA LOCAL (UI)
+// =========================================================================
+
 function toggleCart() {
     document.getElementById('cart-modal').classList.toggle('active');
 }
@@ -303,7 +537,7 @@ function updateCartUI() {
         itemsContainer.innerHTML = cart.map(item => `
             <div class="cart-item">
                 <span>${item.titulo}</span>
-                <button class="btn-remove" onclick="removeFromCart('${item.idPatente}')">Remover</button>
+                <button class="btn-remove" onclick="removeFromCart('${item.id}')">Remover</button>
             </div>
         `).join('');
     }
@@ -324,11 +558,22 @@ function renderPatents(listaPatentes) {
             <h3>${p.titulo}</h3>
             <p class="inventor"><strong>Inventores:</strong> ${p.pesquisadores || 'Não informado'}</p>
             <p class="description">${p.resumo}</p>
-            ${currentUserRole !== 'NIT' ? `
-                <button class="btn-add-cart" onclick="addToCart('${p.idPatente}')">
-                    Manifestar Interesse
-                </button>
-            ` : ''}
+            <div style="margin-top:10px; display:flex; gap:5px;">
+               ${currentUserRole !== 'NIT' ? `
+                    <button class="btn-add-cart" onclick="addToCart('${p.id}')">
+                        Manifestar Interesse
+                    </button>
+                ` : `
+                    <button class="btn-remove" style="background:#dc3545;" onclick="deletarPatente('${p.id}')">
+                        Excluir
+                    </button>
+                `}
+                ${p.documento ? `
+                    <button class="btn-add-cart" style="background:#6c757d;" onclick="baixarPdfPatente('${p.id}')">
+                        PDF
+                    </button>
+                ` : ''}
+            </div>
         </div>
     `).join('');
 }
