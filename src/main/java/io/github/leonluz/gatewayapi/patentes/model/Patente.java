@@ -5,6 +5,7 @@ import io.github.leonluz.gatewayapi.autenticacao.model.Usuario;
 import io.github.leonluz.gatewayapi.patentes.dto.PatenteRequestDTO;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -34,7 +35,7 @@ public class Patente {
     private String area;
 
     @Column(name = "valor")
-    private Double valor;
+    private BigDecimal valor;
 
     @Column(name = "pesquisadores")
     private String pesquisadores;
@@ -93,7 +94,7 @@ public class Patente {
         this.area = area;
     }
 
-    public void setValor(Double valor) {
+    public void setValor(BigDecimal valor) {
         this.valor = valor;
     }
 
@@ -137,7 +138,7 @@ public class Patente {
         return area;
     }
 
-    public Double getValor() {
+    public BigDecimal getValor() {
         return valor;
     }
 
