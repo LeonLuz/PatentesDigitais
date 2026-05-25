@@ -1,6 +1,7 @@
 package io.github.leonluz.gatewayapi.pedidos.controller;
 
 import io.github.leonluz.gatewayapi.pedidos.dto.AdicionarItemDTO;
+import io.github.leonluz.gatewayapi.pedidos.model.Carrinho;
 import io.github.leonluz.gatewayapi.pedidos.service.CarrinhoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,6 @@ public class CarrinhoController {
             carrinhoService.adicionarAoCarrinho(idUsuario, dto.idPatente());
             return ResponseEntity.status(HttpStatus.CREATED).body("Patente adicionada ao carrinho de compras.");
         } catch (IllegalArgumentException | IllegalStateException e) {
-
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
@@ -37,7 +37,21 @@ public class CarrinhoController {
             @PathVariable UUID idUsuario,
             @PathVariable UUID idPatente) {
 
-        carrinhoService.removerDoCarrinho(idUsuario, idPatente);
-        return ResponseEntity.ok("Patente removida do carrinho.");
+        try {
+            carrinhoService.removerDoCarrinho(idUsuario, idPatente);
+            return ResponseEntity.ok("Patente removida do carrinho.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/{idUsuario}")
+    public ResponseEntity<?> obterCarrinho(@PathVariable UUID idUsuario) {
+        try {
+            Carrinho carrinho = carrinhoService.buscarPorUsuario(idUsuario);
+            return ResponseEntity.ok(carrinho);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 }

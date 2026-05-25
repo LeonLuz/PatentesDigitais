@@ -172,3 +172,63 @@ form button + button {
 }
 
 .hidden { display: none !important; }
+
+/* =========================================================================
+   ESTILIZAÇÃO ADICIONADA: AJUSTES DA TELA DE EDITAR PERFIL
+   ========================================================================= */
+
+/* Transforma a seção de perfil em um bloco centralizado idêntico às outras telas */
+#edit-profile {
+    max-width: 500px;
+    margin: 2rem auto;
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* Alinha o título do topo do formulário */
+#edit-profile h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-align: center;
+    color: var(--text-dark);
+}
+
+/* Adiciona margem inferior nos inputs para eles não ficarem colados */
+#edit-profile-form input[type="text"],
+#edit-profile-form input[type="email"] {
+    margin-bottom: 15px;
+}
+
+/* Formata o bloco de consultoria para o checkbox se comportar corretamente */
+#consultoria-container {
+    background-color: var(--bg-light);
+    padding: 12px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    margin-bottom: 15px;
+}
+
+#consultoria-container label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 0;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+/* Remove o width 100% padrão apenas da caixinha do checkbox */
+#edit-consultoria {
+    width: auto !important;
+    margin: 0 !important;
+    transform: scale(1.1);
+    cursor: pointer;
+}
+
+/* Espaçamento e formatação do botão de cancelar da edição */
+#edit-profile-form button[type="button"] {
+    background-color: #666;
+    margin-top: 15px;
+}
