@@ -1,5 +1,6 @@
 package io.github.leonluz.gatewayapi.pedidos.controller;
 
+import io.github.leonluz.gatewayapi.pedidos.dto.AdicionarItemDTO;
 import io.github.leonluz.gatewayapi.pedidos.service.CarrinhoService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,10 +21,15 @@ public class CarrinhoController {
     @PostMapping("/{idUsuario}/itens")
     public ResponseEntity<String> adicionar(
             @PathVariable UUID idUsuario,
-            @RequestBody UUID idPatente) {
+            @RequestBody AdicionarItemDTO dto) {
 
-        carrinhoService.adicionarAoCarrinho(idUsuario, idPatente);
-        return ResponseEntity.status(HttpStatus.CREATED).body("Patente adicionada ao carrinho de compras.");
+        try {
+            carrinhoService.adicionarAoCarrinho(idUsuario, dto.idPatente());
+            return ResponseEntity.status(HttpStatus.CREATED).body("Patente adicionada ao carrinho de compras.");
+        } catch (IllegalArgumentException | IllegalStateException e) {
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @DeleteMapping("/{idUsuario}/itens/{idPatente}")
@@ -33,5 +39,5 @@ public class CarrinhoController {
 
         carrinhoService.removerDoCarrinho(idUsuario, idPatente);
         return ResponseEntity.ok("Patente removida do carrinho.");
-        }
     }
+}

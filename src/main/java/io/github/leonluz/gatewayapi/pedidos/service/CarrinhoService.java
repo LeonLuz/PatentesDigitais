@@ -39,28 +39,43 @@ public class CarrinhoService {
             throw new IllegalStateException("Esta patente não está disponível para negociação no momento.");
         }
 
-        UUID idCarrinho = carrinhoRepository.buscarIdCarrinhoPorUsuario(idUsuario);
-        if (idCarrinho == null) {
-            throw new IllegalStateException("Carrinho não encontrado para este usuário.");
-        }
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado."));
 
-        if (carrinhoRepository.verificarItemExistente(idCarrinho, idPatente) > 0) {
+        Carrinho carrinho = carrinhoRepository.findByUsuario(usuario)
+                .orElseThrow(() -> new IllegalStateException("Carrinho não encontrado para este usuário."));
+
+        boolean patenteJaAdicionada = carrinho.getItens().stream()
+                .anyMatch(item -> item.getIdPatente().getId().equals(idPatente));
+
+        if (patenteJaAdicionada) {
             throw new IllegalStateException("Esta patente já consta no seu carrinho de compras.");
         }
 
-        UUID novoIdItem = UUID.randomUUID();
-        carrinhoRepository.adicionarItem(novoIdItem, idCarrinho, idPatente);
+        ItemCarrinho novoItem = new ItemCarrinho(carrinho, patente);
+        carrinho.getItens().add(novoItem);
+
+        carrinhoRepository.save(carrinho);
     }
 
     @Transactional
     public void removerDoCarrinho(UUID idUsuario, UUID idPatente) {
-        UUID idCarrinho = carrinhoRepository.buscarIdCarrinhoPorUsuario(idUsuario);
 
-        if (idCarrinho == null || carrinhoRepository.verificarItemExistente(idCarrinho, idPatente) == 0) {
-            throw new IllegalArgumentException("A patente não foi encontrada no carrinho desta organização.");
-        }
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado."));
 
-        carrinhoRepository.removerItem(idCarrinho, idPatente);
+        Carrinho carrinho = carrinhoRepository.findByUsuario(usuario)
+                .orElseThrow(() -> new IllegalArgumentException("Carrinho não encontrado para este usuário."));
+
+        ItemCarrinho itemParaRemover = carrinho.getItens().stream()
+                .filter(item -> item.getIdPatente().getId().equals(idPatente))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("A patente não foi encontrada no carrinho deste usuário."));
+
+
+        carrinho.getItens().remove(itemParaRemover);
+
+        carrinhoRepository.save(carrinho);
     }
 
     @Transactional

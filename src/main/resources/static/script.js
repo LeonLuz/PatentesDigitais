@@ -48,10 +48,6 @@ function loginAsUser(role) {
     renderPatents(patents);
 }
 
-// =========================================================================
-// REQUISITIONS: USUARIOS (UsuarioController)
-// =========================================================================
-
 // Cadastro de Usuários
 async function handleRegistration(event) {
     event.preventDefault();
@@ -276,10 +272,6 @@ async function desvincularUsuarioDoNit(idUsuarioAssociado) {
     }
 }
 
-// =========================================================================
-// REQUISITIONS: PATENTES (PatenteController)
-// =========================================================================
-
 // Listar Patentes
 async function fetchPatents() {
     try {
@@ -399,10 +391,6 @@ function baixarPdfPatente(idPatente) {
     window.open(`${API_BASE_URL}/patentes/${idPatente}/baixar-pdf`, '_blank');
 }
 
-// =========================================================================
-// REQUISITIONS: CARRINHO (CarrinhoController)
-// =========================================================================
-
 // Adicionar item ao Carrinho Remoto
 async function addToCart(idPatente) {
     if (currentUserRole === "VISITANTE") {
@@ -426,7 +414,7 @@ async function addToCart(idPatente) {
         const response = await fetch(`${API_BASE_URL}/carrinho/${loggedUserId}/itens`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(idPatente)
+            body: JSON.stringify({ idPatente: idPatente })
         });
 
         if (response.status === 201) {
@@ -434,8 +422,10 @@ async function addToCart(idPatente) {
             cart.push(patenteParaAdicionar);
             updateCartUI();
             toggleCart();
+            alert("Patente adicionada ao carrinho!");
         } else {
-            alert("Não foi possível salvar o item no seu carrinho no servidor.");
+            const msgErro = await response.text();
+            alert(`Erro: ${msgErro || "Não foi possível salvar o item no seu carrinho no servidor."}`);
         }
     } catch (error) {
         console.error("Erro ao adicionar item ao carrinho remoto:", error);
@@ -459,10 +449,6 @@ async function removeFromCart(idPatente) {
         console.error("Erro ao deletar item do carrinho remoto:", error);
     }
 }
-
-// =========================================================================
-// REQUISITIONS: AQUISICOES & CHECKOUT (AquisicaoController)
-// =========================================================================
 
 // Finalizar Checkout de Interesse das patentes alocadas no carrinho
 async function finalizarInteresse() {
@@ -516,10 +502,6 @@ async function buscarAquisicaoPorId(idAquisicao) {
         console.error("Erro ao resgatar dados da aquisição:", error);
     }
 }
-
-// =========================================================================
-// RENDERIZAÇÃO E INTERFACE GRÁFICA LOCAL (UI)
-// =========================================================================
 
 function toggleCart() {
     document.getElementById('cart-modal').classList.toggle('active');
