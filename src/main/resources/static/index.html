@@ -82,21 +82,36 @@
     </section>
 
     <section id="edit-profile" class="page-section">
-        <h2>Atualizar Meus Dados</h2>
-        <form id="edit-profile-form" onsubmit="event.preventDefault(); atualizarUsuarioLogado();">
-            <input type="text" id="edit-nome" placeholder="Nome ou Razão Social" required>
-            <input type="text" id="edit-documento" placeholder="CPF ou CNPJ" required>
-            <input type="email" id="edit-email" placeholder="Email" required>
-            <input type="text" id="edit-telefone" placeholder="Telefone">
-            <input type="text" id="edit-endereco" placeholder="Endereço">
-            
-            <div id="consultoria-container" style="display:none;">
-                <label><input type="checkbox" id="edit-consultoria"> Disponível para Consultoria</label>
-            </div>
-            
-            <button type="submit">Salvar Alterações</button>
-            <button type="button" onclick="showSection('home')">Cancelar</button>
-        </form>
+            <h2>Atualizar Meus Dados</h2>
+            <form id="edit-profile-form" onsubmit="event.preventDefault(); atualizarUsuarioLogado();">
+                <div class="form-group">
+                    <label>Nome / Razão Social</label>
+                    <input type="text" id="edit-nome" placeholder="Nome ou Razão Social" required>
+                </div>
+                <div class="form-group">
+                    <label>CPF / CNPJ</label>
+                    <input type="text" id="edit-documento" placeholder="CPF ou CNPJ" required>
+                </div>
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="email" id="edit-email" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <label>Telefone</label>
+                    <input type="text" id="edit-telefone" placeholder="Telefone">
+                </div>
+                <div class="form-group">
+                    <label>Endereço</label>
+                    <input type="text" id="edit-endereco" placeholder="Endereço">
+                </div>
+
+                <div id="consultoria-container" class="form-group" style="display:none;">
+                    <label><input type="checkbox" id="edit-consultoria"> Disponível para Consultoria</label>
+                </div>
+
+                <button type="submit">Salvar Alterações</button>
+                <button type="button" class="btn-cancel" onclick="showSection('home')">Cancelar</button>
+            </form>
     </section>
 
     <aside id="cart-modal">

@@ -27,6 +27,9 @@ function showRegisterForm(role) {
 }
 
 function logout() {
+    // Limpa a sessão armazenada no navegador antes de recarregar
+    localStorage.removeItem('loggedUserId');
+    localStorage.removeItem('currentUserRole');
     location.reload();
 }
 
@@ -58,6 +61,34 @@ function loginAsUser(role) {
 
     showSection('home');
     renderPatents(patents);
+}
+
+// =========================================================================
+// SINCRO_CARRINHO (Nova função de carregamento remoto)
+// =========================================================================
+async function carregarCarrinhoDoServidor(idUsuario) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/carrinho/${idUsuario}`);
+        if (response.ok) {
+            const carrinhoCompleto = await response.json();
+
+            if (carrinhoCompleto && carrinhoCompleto.itens) {
+                cart = carrinhoCompleto.itens.map(item => {
+                    const idBuscado = item.idPatente;
+
+                    return patents.find(p => (p.id === idBuscado || p.idPatente === idBuscado)) || {
+                        id: idBuscado,
+                        titulo: "Patente Adicionada"
+                    };
+                });
+            } else {
+                cart = [];
+            }
+            updateCartUI();
+        }
+    } catch (error) {
+        console.error("Erro ao sincronizar o carrinho remoto:", error);
+    }
 }
 
 // =========================================================================
@@ -105,15 +136,20 @@ async function handleRegistration(event) {
             alert(`${currentUserRole} cadastrado com sucesso!`);
 
             loggedUserId = usuarioCriado.idUsuario;
+            const perfil = usuarioCriado.tipoPerfil || (currentUserRole === 'Pesquisador' ? 'PESQUISADOR' : (currentUserRole === 'NIT' ? 'NIT' : 'ORGANIZACAO'));
 
-            if (currentUserRole === 'NIT') {
+            // Grava os dados da sessão no navegador
+            localStorage.setItem('loggedUserId', loggedUserId);
+            localStorage.setItem('currentUserRole', perfil);
+
+            if (perfil !== 'NIT') {
+                await carregarCarrinhoDoServidor(loggedUserId);
+            }
+
+            if (perfil === 'NIT') {
                 loginAsNIT();
-
-            } else if (currentUserRole === 'Pesquisador') {
-                loginAsUser('PESQUISADOR');
-
             } else {
-                loginAsUser('ORGANIZACAO');
+                loginAsUser(perfil);
             }
 
         } else {
@@ -147,10 +183,17 @@ async function handleLogin(event) {
             const usuario = await response.json();
 
             loggedUserId = usuario.idUsuario;
-
             const perfil = usuario.tipoPerfil;
 
+            // Grava os dados da sessão no navegador
+            localStorage.setItem('loggedUserId', loggedUserId);
+            localStorage.setItem('currentUserRole', perfil);
+
             alert(`Bem-vindo, ${usuario.razaoSocial || usuario.nome || "Usuário"}!`);
+
+            if (perfil !== 'NIT') {
+                await carregarCarrinhoDoServidor(loggedUserId);
+            }
 
             if (perfil === 'NIT') {
                 loginAsNIT();
@@ -275,9 +318,6 @@ async function atualizarUsuarioLogado() {
         alert("Erro: Perfil de usuário desconhecido.");
         return;
     }
-
-    console.log("Enviando PUT para:", `${API_BASE_URL}/usuarios${endpoint}`);
-    console.log("Payload:", JSON.stringify(payloadDTO));
 
     try {
         const response = await fetch(`${API_BASE_URL}/usuarios${endpoint}`, {
@@ -414,7 +454,7 @@ async function desvincularUsuarioDoNit(idUsuarioAssociado) {
 // PATENTES
 // =========================================================================
 
-// Listar patentes
+// Listar patentes (Retorna Promise para a sincronização sequencial funcionar)
 async function fetchPatents() {
     try {
         const response = await fetch(`${API_BASE_URL}/patentes`);
@@ -424,7 +464,6 @@ async function fetchPatents() {
         }
 
         patents = await response.json();
-
         renderPatents(patents);
 
     } catch (error) {
@@ -471,7 +510,6 @@ async function handlePatentSubmit(event) {
                 .reset();
 
             await fetchPatents();
-
             showSection('home');
 
         } else {
@@ -497,7 +535,6 @@ async function buscarPatentePorId(idPatente) {
     }
 }
 
-// Atualizar patente
 async function atualizarDadosPatente(idPatente, patenteRequestDTO) {
     try {
         const response = await fetch(`${API_BASE_URL}/patentes/${idPatente}`, {
@@ -507,7 +544,7 @@ async function atualizarDadosPatente(idPatente, patenteRequestDTO) {
         });
 
         if (response.ok) {
-            alert("Dados da patente atualizados.");
+            alert("Dados da patente updated.");
             await fetchPatents();
         }
 
@@ -516,60 +553,42 @@ async function atualizarDadosPatente(idPatente, patenteRequestDTO) {
     }
 }
 
-// Alterar status
 async function alterarStatusPatente(idPatente, novoStatus) {
-
     if (!loggedUserId) return;
-
     try {
         const response = await fetch(
             `${API_BASE_URL}/patentes/${idPatente}/status?novoStatus=${novoStatus}`,
             {
                 method: 'PATCH',
-                headers: {
-                    'X-Usuario-Id': loggedUserId.toString()
-                }
+                headers: { 'X-Usuario-Id': loggedUserId.toString() }
             }
         );
-
         if (response.ok) {
             alert(await response.text());
             await fetchPatents();
         }
-
     } catch (error) {
         console.error("Erro ao alterar status da patente:", error);
     }
 }
 
-// Deletar patente
 async function deletarPatente(idPatente) {
-
-    if (!confirm("Deseja realmente remover esta patente?")) {
-        return;
-    }
-
+    if (!confirm("Deseja realmente remover esta patente?")) return;
     try {
         const response = await fetch(`${API_BASE_URL}/patentes/${idPatente}`, {
             method: 'DELETE'
         });
-
         if (response.status === 204 || response.status === 200) {
             alert("Patente removida com sucesso.");
             await fetchPatents();
         }
-
     } catch (error) {
         console.error("Erro ao excluir patente:", error);
     }
 }
 
-// Baixar PDF
 function baixarPdfPatente(idPatente) {
-    window.open(
-        `${API_BASE_URL}/patentes/${idPatente}/baixar-pdf`,
-        '_blank'
-    );
+    window.open(`${API_BASE_URL}/patentes/${idPatente}/baixar-pdf`, '_blank');
 }
 
 // =========================================================================
@@ -590,8 +609,7 @@ async function addToCart(idPatente) {
         return;
     }
 
-    const itemExistente =
-        cart.find(item => item.id === idPatente);
+    const itemExistente = cart.find(item => (item.id === idPatente || item.idPatente === idPatente));
 
     if (itemExistente) {
         alert("Esta patente já foi adicionada.");
@@ -604,8 +622,6 @@ async function addToCart(idPatente) {
             {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-
-                // versão mais segura do merge
                 body: JSON.stringify({
                     idPatente: idPatente
                 })
@@ -613,25 +629,16 @@ async function addToCart(idPatente) {
         );
 
         if (response.status === 201) {
+            const patenteParaAdicionar = patents.find(p => (p.id === idPatente || p.idPatente === idPatente));
 
-            const patenteParaAdicionar =
-                patents.find(p => p.id === idPatente);
-
-            cart.push(patenteParaAdicionar);
-
+            cart.push(patenteParaAdicionar || { id: idPatente, titulo: "Patente Adicionada" });
             updateCartUI();
-
             toggleCart();
-
             alert("Patente adicionada ao carrinho!");
 
         } else {
-
             const msgErro = await response.text();
-
-            alert(
-                `Erro: ${msgErro || "Não foi possível salvar o item."}`
-            );
+            alert(`Erro: ${msgErro || "Não foi possível salvar o item."}`);
         }
 
     } catch (error) {
@@ -650,7 +657,7 @@ async function removeFromCart(idPatente) {
         );
 
         if (response.ok) {
-            cart = cart.filter(item => item.id !== idPatente);
+            cart = cart.filter(item => (item.id !== idPatente && item.idPatente !== idPatente));
             updateCartUI();
 
         } else {
@@ -663,47 +670,29 @@ async function removeFromCart(idPatente) {
 }
 
 // =========================================================================
-// AQUISIÇÕES
+// AQUISIÇÕES E RESTANTE DA UI
 // =========================================================================
 
-// Checkout
 async function finalizarInteresse() {
-
     if (cart.length === 0) {
         alert("Seu carrinho está vazio!");
         return;
     }
-
     try {
-        const response = await fetch(
-            `${API_BASE_URL}/aquisicoes/checkout/${loggedUserId}`,
-            {
-                method: 'POST'
-            }
-        );
-
+        const response = await fetch(`${API_BASE_URL}/aquisicoes/checkout/${loggedUserId}`, { method: 'POST' });
         if (response.status === 201) {
-
-            const mensagemSucesso = await response.text();
-
-            alert(mensagemSucesso);
-
+            alert(await response.text());
             cart = [];
-
             updateCartUI();
-
             toggleCart();
-
         } else {
             alert("Erro ao finalizar checkout.");
         }
-
     } catch (error) {
         console.error("Erro no checkout:", error);
     }
 }
 
-// Criar aquisição direta
 async function criarAquisicaoDireta(aquisicaoRequestDTO) {
     try {
         const response = await fetch(`${API_BASE_URL}/aquisicoes`, {
@@ -711,66 +700,38 @@ async function criarAquisicaoDireta(aquisicaoRequestDTO) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(aquisicaoRequestDTO)
         });
-
-        if (response.status === 201) {
-            return await response.json();
-        }
-
+        if (response.status === 201) return await response.json();
     } catch (error) {
         console.error("Erro ao criar aquisição:", error);
     }
 }
 
-// Buscar aquisição
 async function buscarAquisicaoPorId(idAquisicao) {
     try {
-        const response = await fetch(
-            `${API_BASE_URL}/aquisicoes/${idAquisicao}`
-        );
-
-        if (response.ok) {
-            return await response.json();
-        }
-
+        const response = await fetch(`${API_BASE_URL}/aquisicoes/${idAquisicao}`);
+        if (response.ok) return await response.json();
     } catch (error) {
         console.error("Erro ao buscar aquisição:", error);
     }
 }
 
-// =========================================================================
-// UI
-// =========================================================================
-
 function toggleCart() {
-    document.getElementById('cart-modal')
-        .classList.toggle('active');
+    document.getElementById('cart-modal').classList.toggle('active');
 }
 
 function updateCartUI() {
-
-    const itemsContainer =
-        document.getElementById('cart-items');
-
-    const countElement =
-        document.getElementById('cart-count');
+    const itemsContainer = document.getElementById('cart-items');
+    const countElement = document.getElementById('cart-count');
 
     countElement.innerText = cart.length;
 
     if (cart.length === 0) {
-
-        itemsContainer.innerHTML =
-            "<p style='color:#888; padding:10px;'>Seu carrinho está vazio.</p>";
-
+        itemsContainer.innerHTML = "<p style='color:#888; padding:10px;'>Seu carrinho está vazio.</p>";
     } else {
-
         itemsContainer.innerHTML = cart.map(item => `
             <div class="cart-item">
                 <span>${item.titulo}</span>
-
-                <button
-                    class="btn-remove"
-                    onclick="removeFromCart('${item.id}')"
-                >
+                <button class="btn-remove" onclick="removeFromCart('${item.id || item.idPatente}')">
                     Remover
                 </button>
             </div>
@@ -778,78 +739,72 @@ function updateCartUI() {
     }
 }
 
-// Renderizar patentes
 function renderPatents(listaPatentes) {
-
     const catalog = document.getElementById('patentCatalog');
-
     if (!catalog) return;
 
     if (!listaPatentes || listaPatentes.length === 0) {
-
-        catalog.innerHTML = `
-            <p style="grid-column:1/-1; text-align:center; color:#666;">
-                Nenhuma patente cadastrada no momento.
-            </p>
-        `;
-
+        catalog.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:#666;">Nenhuma patente cadastrada no momento.</p>`;
         return;
     }
 
     catalog.innerHTML = listaPatentes.map(p => `
         <div class="patent-card">
-
-            <span class="badge">
-                ${p.area || 'Geral'}
-            </span>
-
+            <span class="badge">${p.area || 'Geral'}</span>
             <h3>${p.titulo}</h3>
-
-            <p class="inventor">
-                <strong>Inventores:</strong>
-                ${p.pesquisadores || 'Não informado'}
-            </p>
-
-            <p class="description">
-                ${p.resumo}
-            </p>
-
+            <p class="inventor"><strong>Inventores:</strong> ${p.pesquisadores || 'Não informado'}</p>
+            <p class="description">${p.resumo}</p>
             <div style="margin-top:10px; display:flex; gap:5px;">
-
                 ${currentUserRole !== 'NIT' ? `
-                    <button
-                        class="btn-add-cart"
-                        onclick="addToCart('${p.id}')"
-                    >
+                    <button class="btn-add-cart" onclick="addToCart('${p.id || p.idPatente}')">
                         Manifestar Interesse
                     </button>
                 ` : `
-                    <button
-                        class="btn-remove"
-                        style="background:#dc3545;"
-                        onclick="deletarPatente('${p.id}')"
-                    >
+                    <button class="btn-remove" style="background:#dc3545;" onclick="deletarPatente('${p.id || p.idPatente}')">
                         Excluir
                     </button>
                 `}
-
                 ${p.documento ? `
-                    <button
-                        class="btn-add-cart"
-                        style="background:#6c757d;"
-                        onclick="baixarPdfPatente('${p.id}')"
-                    >
+                    <button class="btn-add-cart" style="background:#6c757d;" onclick="baixarPdfPatente('${p.id || p.idPatente}')">
                         PDF
                     </button>
                 ` : ''}
-
             </div>
         </div>
     `).join('');
 }
 
 // =========================================================================
-// INICIALIZAÇÃO
+// INICIALIZAÇÃO E SESSÃO PERSISTENTE (Gerenciamento pós-refresh)
 // =========================================================================
 
-fetchPatents();
+async function inicializarAplicacao() {
+    // 1. Carrega todas as patentes primeiro (essencial para que o mapa de títulos do carrinho funcione)
+    await fetchPatents();
+
+    // 2. Busca chaves salvas no localStorage do navegador
+    const idSalvo = localStorage.getItem('loggedUserId');
+    const perfilSalvo = localStorage.getItem('currentUserRole');
+
+    if (idSalvo && perfilSalvo) {
+        loggedUserId = idSalvo;
+        currentUserRole = perfilSalvo;
+
+        console.log(`Sessão restaurada com sucesso: ${loggedUserId} (${currentUserRole})`);
+
+        // Sincroniza o carrinho com o banco e renderiza o layout correspondente
+        if (currentUserRole !== 'NIT') {
+            await carregarCarrinhoDoServidor(loggedUserId);
+            loginAsUser(currentUserRole);
+        } else {
+            loginAsNIT();
+        }
+    } else {
+        // Fluxo comum para usuários anônimos / visitantes
+        currentUserRole = "VISITANTE";
+        showSection('home');
+    }
+}
+
+// Inicia o ciclo de vida persistente da página
+inicializarAplicacao();
