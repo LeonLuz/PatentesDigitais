@@ -21,6 +21,7 @@ create table if not exists ORGANIZACAO (
     razao_social varchar(150) not null,
     CONSTRAINT fk_usuario_organizacao
     FOREIGN KEY (id_usuario) references USUARIO(id_usuario)
+    ON DELETE CASCADE
     );
 
 
@@ -30,6 +31,7 @@ create table if not exists NIT (
     razao_social varchar(150) not null,
     CONSTRAINT fk_usuario_nit
     FOREIGN KEY (id_usuario) references USUARIO(id_usuario)
+    ON DELETE CASCADE
     );
 
 create table if not exists PESQUISADOR (
@@ -58,6 +60,7 @@ create table if not exists PATENTE (
                 'EM_PROCESSO_DE_COMPRA', 'CEDIDA', 'LICENCIADA', 'EXCLUIDA') not null,
     CONSTRAINT fk_titular_patente
     FOREIGN KEY (id_titular) references USUARIO(id_usuario)
+    ON DELETE CASCADE
     );
 
 create table if not exists PATENTE_PESQUISADOR (
@@ -66,9 +69,11 @@ create table if not exists PATENTE_PESQUISADOR (
     CONSTRAINT pk_patente_pesquisador
     PRIMARY KEY (id_patente, id_pesquisador),
     CONSTRAINT fk_patente_pesquisador
-    FOREIGN KEY (id_patente) references PATENTE(id_patente),
+    FOREIGN KEY (id_patente) references PATENTE(id_patente)
+    ON DELETE CASCADE,
     CONSTRAINT fk_pesquisador_patente
     FOREIGN KEY (id_pesquisador) references PESQUISADOR(id_usuario)
+    ON DELETE CASCADE
     );
 
 create table if not exists AQUISICAO (
@@ -89,7 +94,8 @@ create table if not exists ITEM_AQUISICAO (
     tipo_aquisicao enum('LICENCIAMENTO', 'CESSAO') not null,
     fim_licenca date,
     CONSTRAINT fk_aquisicao_item_aquisicao
-    FOREIGN KEY (id_aquisicao) references AQUISICAO(id_aquisicao),
+    FOREIGN KEY (id_aquisicao) references AQUISICAO(id_aquisicao)
+    ON DELETE CASCADE,
     CONSTRAINT fk_patente_item_aquisicao
     FOREIGN KEY (id_patente) references PATENTE(id_patente)
     );
@@ -106,7 +112,8 @@ create table if not exists ITEM_CARRINHO (
     id_carrinho binary(16) not null,
     id_patente binary(16) not null,
     CONSTRAINT fk_carrinho_item_carrinho
-    FOREIGN KEY (id_carrinho) references CARRINHO(id_carrinho),
+    FOREIGN KEY (id_carrinho) references CARRINHO(id_carrinho)
+    ON DELETE CASCADE,
     CONSTRAINT fk_patente_item_carrinho
     FOREIGN KEY (id_patente) references PATENTE(id_patente)
     );
