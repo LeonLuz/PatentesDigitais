@@ -15,6 +15,8 @@
             <div class="nav-menu">
                 <a onclick="showSection('home')">Vitrine</a>
                 <a id="nav-cart" onclick="toggleCart()">Carrinho (<span id="cart-count">0</span>)</a>
+                <!-- Botão de edição de conta para usuário cadastrado -->
+                <a id="nav-profile" class="hidden" onclick="abrirTelaEdicao()">Editar Perfil</a>
                 <!-- O Painel NIT fica oculto por padrão -->
                 <a id="nav-nit" class="hidden" onclick="showSection('nit-panel')">Painel NIT</a>
                 <a id="nav-login" onclick="showSection('login-section')">Login</a>
@@ -77,6 +79,24 @@
                 <button type="submit">Publicar Ativo</button>
             </form>
         </div>
+    </section>
+
+    <section id="edit-profile" class="page-section">
+        <h2>Atualizar Meus Dados</h2>
+        <form id="edit-profile-form" onsubmit="event.preventDefault(); atualizarUsuarioLogado();">
+            <input type="text" id="edit-nome" placeholder="Nome ou Razão Social" required>
+            <input type="text" id="edit-documento" placeholder="CPF ou CNPJ" required>
+            <input type="email" id="edit-email" placeholder="Email" required>
+            <input type="text" id="edit-telefone" placeholder="Telefone">
+            <input type="text" id="edit-endereco" placeholder="Endereço">
+            
+            <div id="consultoria-container" style="display:none;">
+                <label><input type="checkbox" id="edit-consultoria"> Disponível para Consultoria</label>
+            </div>
+            
+            <button type="submit">Salvar Alterações</button>
+            <button type="button" onclick="showSection('home')">Cancelar</button>
+        </form>
     </section>
 
     <aside id="cart-modal">

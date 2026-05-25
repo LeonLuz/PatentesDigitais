@@ -1,6 +1,7 @@
 package io.github.leonluz.gatewayapi.autenticacao.service;
 
 import io.github.leonluz.gatewayapi.autenticacao.dto.PesquisadorRequestDTO;
+import io.github.leonluz.gatewayapi.autenticacao.dto.PesquisadorUpdateDTO;
 import io.github.leonluz.gatewayapi.autenticacao.model.Pesquisador;
 import io.github.leonluz.gatewayapi.autenticacao.model.TipoPerfil;
 import io.github.leonluz.gatewayapi.autenticacao.repository.PesquisadorRepository;
@@ -38,18 +39,16 @@ public class PesquisadorService {
     }
 
     @Transactional
-    public Pesquisador atualizarPesquisador(UUID id, PesquisadorRequestDTO dto) {
+    public Pesquisador atualizarPesquisador(UUID id, PesquisadorUpdateDTO dto) {
         Pesquisador pesquisadorExistente = pesquisadorRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pesquisador não encontrado"));
 
         pesquisadorExistente.setEmail(dto.email());
-        pesquisadorExistente.setSenha(dto.senha());
         pesquisadorExistente.setTelefone(dto.telefone());
         pesquisadorExistente.setEndereco(dto.endereco());
         pesquisadorExistente.setNome(dto.nome());
         pesquisadorExistente.setCpf(dto.cpf());
-        pesquisadorExistente.setStatusAtivo(true);
-        pesquisadorExistente.setStatusAuth(true);
+        pesquisadorExistente.setDisponibilidadeConsultoria(dto.disponibilidadeConsultoria());
 
         return pesquisadorRepository.save(pesquisadorExistente);
     }
