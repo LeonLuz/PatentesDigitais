@@ -4,6 +4,9 @@ import io.github.leonluz.gatewayapi.autenticacao.dto.LoginRequestDTO;
 import io.github.leonluz.gatewayapi.autenticacao.dto.NITRequestDTO;
 import io.github.leonluz.gatewayapi.autenticacao.dto.OrganizacaoRequestDTO;
 import io.github.leonluz.gatewayapi.autenticacao.dto.PesquisadorRequestDTO;
+import io.github.leonluz.gatewayapi.autenticacao.dto.NitUpdateDTO;
+import io.github.leonluz.gatewayapi.autenticacao.dto.OrganizacaoUpdateDTO;
+import io.github.leonluz.gatewayapi.autenticacao.dto.PesquisadorUpdateDTO;
 import io.github.leonluz.gatewayapi.autenticacao.model.NIT;
 import io.github.leonluz.gatewayapi.autenticacao.model.Organizacao;
 import io.github.leonluz.gatewayapi.autenticacao.model.Pesquisador;
@@ -84,17 +87,17 @@ public class UsuarioController {
     }
 
     @PutMapping("/nit/{id}")
-    public ResponseEntity<NIT> atualizarNIT(@PathVariable("id") UUID id, @RequestBody NITRequestDTO dto) {
+    public ResponseEntity<NIT> atualizarNIT(@PathVariable("id") UUID id, @RequestBody NitUpdateDTO dto) {
         return ResponseEntity.ok(nitService.atualizarNit(id, dto));
     }
 
     @PutMapping("/pesquisador/{id}")
-    public ResponseEntity<Pesquisador> atualizarPesquisador(@PathVariable("id") UUID id, @RequestBody PesquisadorRequestDTO dto) {
+    public ResponseEntity<Pesquisador> atualizarPesquisador(@PathVariable("id") UUID id, @RequestBody PesquisadorUpdateDTO dto) {
         return ResponseEntity.ok(pesquisadorService.atualizarPesquisador(id, dto));
     }
 
     @PutMapping("/organizacao/{id}")
-    public ResponseEntity<Organizacao> atualizarOrganizacao(@PathVariable("id") UUID id, @RequestBody OrganizacaoRequestDTO dto) {
+    public ResponseEntity<Organizacao> atualizarOrganizacao(@PathVariable("id") UUID id, @RequestBody OrganizacaoUpdateDTO dto) {
         return ResponseEntity.ok(organizacaoService.atualizarOrganizacao(id, dto));
     }
 
