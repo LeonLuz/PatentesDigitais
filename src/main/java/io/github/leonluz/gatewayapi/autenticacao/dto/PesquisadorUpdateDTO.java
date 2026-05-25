@@ -5,6 +5,5 @@ public record PesquisadorUpdateDTO(
         String telefone,
         String endereco,
         String nome,
-        String cpf,
         Boolean disponibilidadeConsultoria
 ) {}

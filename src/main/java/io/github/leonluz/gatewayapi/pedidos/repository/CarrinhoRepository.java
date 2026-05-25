@@ -15,7 +15,7 @@ import java.util.UUID;
 @Repository
 public interface CarrinhoRepository extends JpaRepository<Carrinho, UUID> {
 
-    @Query(value = "SELECT id_carrinho FROM CARRINHO WHERE id_usuario = :idUsuario", nativeQuery = true)
+    @Query("SELECT c.id FROM Carrinho c WHERE c.usuario.id = :idUsuario")
     UUID buscarIdCarrinhoPorUsuario(@Param("idUsuario") UUID idUsuario);
 
     @Modifying
@@ -33,7 +33,7 @@ public interface CarrinhoRepository extends JpaRepository<Carrinho, UUID> {
     @Query(value = "SELECT COUNT(*) FROM ITEM_CARRINHO WHERE id_carrinho = :idCarrinho AND id_patente = :idPatente", nativeQuery = true)
     int verificarItemExistente(@Param("idCarrinho") UUID idCarrinho, @Param("idPatente") UUID idPatente);
 
-    @Query(value = "SELECT id_patente FROM ITEM_CARRINHO WHERE id_carrinho = :idCarrinho", nativeQuery = true)
+    @Query(value = "SELECT BIN_TO_UUID(id_patente, false) FROM ITEM_CARRINHO WHERE id_carrinho = :idCarrinho", nativeQuery = true)
     List<UUID> listarItensDoCarrinho(@Param("idCarrinho") UUID idCarrinho);
 
     @Modifying

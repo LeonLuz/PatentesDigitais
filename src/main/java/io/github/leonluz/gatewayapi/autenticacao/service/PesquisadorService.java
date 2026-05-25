@@ -47,7 +47,6 @@ public class PesquisadorService {
         pesquisadorExistente.setTelefone(dto.telefone());
         pesquisadorExistente.setEndereco(dto.endereco());
         pesquisadorExistente.setNome(dto.nome());
-        pesquisadorExistente.setCpf(dto.cpf());
         pesquisadorExistente.setDisponibilidadeConsultoria(dto.disponibilidadeConsultoria());
 
         return pesquisadorRepository.save(pesquisadorExistente);

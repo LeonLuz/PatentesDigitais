@@ -48,7 +48,6 @@ public class OrganizacaoService {
         orgExistente.setEmail(dto.email());
         orgExistente.setTelefone(dto.telefone());
         orgExistente.setEndereco(dto.endereco());
-        orgExistente.setCnpj(dto.cnpj());
         orgExistente.setRazaoSocial(dto.razaoSocial());
 
         return organizacaoRepository.save(orgExistente);
