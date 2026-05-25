@@ -61,24 +61,30 @@ public class PatenteService {
     }
 
     @Transactional
-    public Patente salvarPatente(UUID idUsuario, PatenteRequestDTO dto) {
-        Patente patente = new Patente(dto);
-        patente.setId(UUID.randomUUID());
-
-        Usuario titular = usuarioRepository.findById(dto.idTitular())
+    public Patente salvarPatente(UUID idTitular, PatenteRequestDTO dto) {
+        Usuario titular = usuarioRepository.findById(idTitular)
                 .orElseThrow(() -> new RuntimeException("Titular não encontrado"));
-        patente.setIdTitular(titular);
 
-        Usuario usuario = usuarioRepository.findById(idUsuario)
-                .orElseThrow(() -> new RuntimeException("Usuario não encontrado"));
+        Patente patente = new Patente();
 
-        if (usuario.getTipoPerfil() == TipoPerfil.NIT) {
-            patente.setStatus(StatusPatente.DISPONIVEL);
-        } else {
-            patente.setStatus(StatusPatente.RASCUNHO);
+        // Use os nomes dos métodos que você criou na classe Patente:
+        patente.setId(UUID.randomUUID());        // Era setIdPatente
+        patente.setIdTitular(titular);           // Era setTitular
+
+        patente.setTitulo(dto.titulo());
+        patente.setNumDeposito(dto.numDeposito());
+        patente.setResumo(dto.resumo());
+        patente.setArea(dto.area());
+        patente.setValor(dto.valor());
+        patente.setPesquisadores(dto.pesquisadores());
+        patente.setDocumento(dto.documento());
+
+        // Certifique-se que o status no DTO existe e não é nulo
+        if (dto.status() != null) {
+            patente.setStatus(StatusPatente.valueOf(dto.status().toUpperCase()));
         }
 
-        // tabela PATENTE_PESQUISADOR
+        // Associar pesquisadores
         if (dto.idsPesquisadoresAssociados() != null && !dto.idsPesquisadoresAssociados().isEmpty()) {
             List<Pesquisador> pesquisadores = dto.idsPesquisadoresAssociados().stream()
                     .map(pesquisadorRepository::getReferenceById)
@@ -106,8 +112,8 @@ public class PatenteService {
         patenteExistente.setValor(dto.valor());
         patenteExistente.setPesquisadores(dto.pesquisadores());
 
-        Usuario titular = usuarioRepository.getReferenceById(dto.idTitular());
-        patenteExistente.setIdTitular(titular);
+        // Se você precisa atualizar o titular na edição, use o ID da URL ou busque o objeto corretamente
+        // Nota: Removido dto.idTitular() pois o DTO não tem mais esse campo
 
         return patenteRepository.save(patenteExistente);
     }
