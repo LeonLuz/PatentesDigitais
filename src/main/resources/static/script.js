@@ -432,24 +432,36 @@ async function handlePatentSubmit(event) {
         valor: 0.0,
         pesquisadores: document.getElementById('p-inv').value,
         documento: null,
+        status: "RASCUNHO", // <--- ADICIONE ESTA LINHA
         idsPesquisadoresAssociados: []
     };
 
     try {
-        const response = await fetch(`${API_BASE_URL}/patentes/${loggedUserId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dto)
-        });
+        const response = await fetch(
+            `${API_BASE_URL}/patentes/${loggedUserId}`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dto)
+            }
+        );
 
         if (response.status === 201) {
+
             alert("Patente publicada no banco de dados com sucesso!");
-            document.getElementById('nit-panel').querySelector('form').reset();
+
+            document.getElementById('nit-panel')
+                .querySelector('form')
+                .reset();
+
             await fetchPatents();
+
             showSection('home');
+
         } else {
             alert("Erro ao publicar patente no servidor.");
         }
+
     } catch (error) {
         console.error("Erro ao enviar dados da patente:", error);
     }
