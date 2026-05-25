@@ -1,5 +1,6 @@
 package io.github.leonluz.gatewayapi.autenticacao.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import io.github.leonluz.gatewayapi.autenticacao.dto.PesquisadorRequestDTO;
 import io.github.leonluz.gatewayapi.patentes.model.Patente;
@@ -24,6 +25,7 @@ public class Pesquisador extends Usuario {
     private boolean disponibilidadeConsultoria;
 
     @ManyToMany(mappedBy = "pesquisadoresAssociados")
+    @JsonIgnore // Ignorando duplicações!!!
     private List<Patente> patentesAssociadas = new ArrayList<>();
 
     @ManyToOne
