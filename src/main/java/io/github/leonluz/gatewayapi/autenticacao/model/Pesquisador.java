@@ -21,7 +21,7 @@ public class Pesquisador extends Usuario {
     private String nome;
 
     @Column(name = "disponibilidade_consultoria")
-    private boolean disponibilidadeConsultoria;
+    private Boolean disponibilidadeConsultoria;
 
     @ManyToMany(mappedBy = "pesquisadoresAssociados", fetch = FetchType.EAGER) // EAGER garante que o Hibernate carregue os IDs
     @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
@@ -41,7 +41,7 @@ public class Pesquisador extends Usuario {
         this.setEndereco(dto.endereco());
         this.cpf = dto.cpf();
         this.nome = dto.nome();
-        this.disponibilidadeConsultoria = dto.disponibilidadeConsultoria();
+        this.disponibilidadeConsultoria = false;
     }
 
     public Pesquisador() {

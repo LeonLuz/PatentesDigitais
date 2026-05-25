@@ -41,7 +41,10 @@ body {
     display: block;
 }
 
-.nav-menu { display: flex; align-items: center; }
+.nav-menu {
+    display: flex;
+    align-items: center;
+}
 
 .nav-menu a {
     text-decoration: none;
@@ -59,8 +62,14 @@ body {
 }
 
 /* SEÇÕES */
-.page-section { display: none; padding: 2rem 5%; }
-.active-section { display: block; }
+.page-section {
+    display: none;
+    padding: 2rem 5%;
+}
+
+.active-section {
+    display: block;
+}
 
 /* FORMULÁRIOS */
 .form-container {
@@ -72,14 +81,30 @@ body {
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
-.form-group { margin-bottom: 15px; }
-label { display: block; margin-bottom: 5px; font-weight: bold; }
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
 input, select, textarea {
     width: 100%;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
     box-sizing: border-box;
+}
+
+/* MODIFICAÇÃO: Estilo automático para qualquer input configurado como somente-leitura (readonly) */
+input[readonly] {
+    background-color: #eee;
+    color: #666;
+    cursor: not-allowed;
+    border-color: #ccc;
 }
 
 /* BOTÕES */
@@ -95,7 +120,9 @@ button {
     width: 100%;
 }
 
-button:hover { background-color: #0081b3; }
+button:hover {
+    background-color: #0081b3;
+}
 
 .btn-add-cart {
     background-color: var(--primary-color);
@@ -110,7 +137,7 @@ button:hover { background-color: #0081b3; }
 
 /* Caso queira um espaçamento entre dois botões empilhados */
 form button + button {
-    margin-top: 15px; 
+    margin-top: 15px;
 }
 
 /* VITRINE */
@@ -153,7 +180,10 @@ form button + button {
     padding: 20px;
     z-index: 1001;
 }
-#cart-modal.active { right: 0; }
+
+#cart-modal.active {
+    right: 0;
+}
 
 .cart-item {
     display: flex;
@@ -171,10 +201,12 @@ form button + button {
     font-size: 0.8rem;
 }
 
-.hidden { display: none !important; }
+.hidden {
+    display: none !important;
+}
 
 /* =========================================================================
-   ESTILIZAÇÃO ADICIONADA: AJUSTES DA TELA DE EDITAR PERFIL
+   TELA DE EDITAR PERFIL
    ========================================================================= */
 
 /* Transforma a seção de perfil em um bloco centralizado idêntico às outras telas */

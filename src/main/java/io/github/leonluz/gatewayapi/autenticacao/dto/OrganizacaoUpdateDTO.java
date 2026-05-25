@@ -4,6 +4,5 @@ public record OrganizacaoUpdateDTO(
         String email,
         String telefone,
         String endereco,
-        String razaoSocial,
-        String cnpj
+        String razaoSocial
 ) {}

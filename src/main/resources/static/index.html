@@ -8,122 +8,119 @@
 </head>
 <body>
 
-    <nav class="navbar">
-        <div class="logo-container">
-            <img src="logo.png" alt="Logo" onclick="showSection('home')">
+<nav class="navbar">
+    <div class="logo-container">
+        <img src="logo.png" alt="Logo" onclick="showSection('home')">
+    </div>
+    <div class="nav-menu">
+        <a onclick="showSection('home')">Vitrine</a>
+        <a id="nav-cart" onclick="toggleCart()">Carrinho (<span id="cart-count">0</span>)</a>
+        <a id="nav-profile" class="hidden" onclick="abrirTelaEdicao()">Editar Perfil</a>
+        <a id="nav-nit" class="hidden" onclick="showSection('nit-panel')">Painel NIT</a>
+        <a id="nav-login" onclick="showSection('login-section')">Login</a>
+        <a id="nav-reg" class="btn-register" onclick="showSection('register-step1')">Cadastrar-se</a>
+        <a id="nav-logout" class="hidden" onclick="logout()">Sair</a>
+    </div>
+</nav>
+
+<section id="home" class="page-section active-section">
+    <header class="search-container">
+        <h1>Mercado Digital de Patentes Acadêmicas</h1>
+        <p>Ativos de Propriedade Intelectual da UNIRIO</p>
+    </header>
+    <main class="catalog" id="patentCatalog"></main>
+</section>
+
+<section id="login-section" class="page-section">
+    <div class="form-container">
+        <h2>Entrar no Sistema</h2>
+        <form onsubmit="handleLogin(event)">
+            <div class="form-group"><label>E-mail</label><input type="email" id="login-email" required></div>
+            <div class="form-group"><label>Senha</label><input type="password" required></div>
+            <button type="submit">Entrar</button>
+            <button type="button" class="btn-cancel" onclick="showSection('home')">Cancelar</button>
+        </form>
+    </div>
+</section>
+
+<section id="register-step1" class="page-section">
+    <div class="form-container">
+        <h2>Criar nova conta</h2>
+        <button onclick="showRegisterForm('Pesquisador')">Sou Pesquisador</button>
+        <button class="btn-secondary" onclick="showRegisterForm('Organização Interessada')">Sou Empresa</button>
+        <button class="btn-nit" onclick="showRegisterForm('NIT')">Sou Gestor do NIT</button>
+    </div>
+</section>
+
+<section id="register-form" class="page-section">
+    <div class="form-container">
+        <h2 id="reg-title">Cadastro</h2>
+        <form onsubmit="handleRegistration(event)">
+            <div class="form-group"><label>Nome</label><input type="text" required></div>
+            <div class="form-group"><label id="label-doc">CPF/CNPJ</label><input type="text" required></div>
+            <div class="form-group"><label>E-mail</label><input type="email" id="reg-email" required></div>
+            <div class="form-group"><label>Senha</label><input type="password" required></div>
+            <button type="submit">Finalizar</button>
+            <button type="button" class="btn-cancel" onclick="showSection('register-step1')">Voltar</button>
+        </form>
+    </div>
+</section>
+
+<section id="nit-panel" class="page-section">
+    <div class="form-container">
+        <h2>Painel NIT</h2>
+        <form onsubmit="handlePatentSubmit(event)">
+            <div class="form-group"><label>Título</label><input type="text" id="p-title" required></div>
+            <div class="form-group"><label>Área</label><select id="p-area"><option>Saúde</option><option>Tecnologia</option></select></div>
+            <div class="form-group"><label>Inventores</label><input type="text" id="p-inv" required></div>
+            <div class="form-group"><label>Resumo</label><textarea id="p-desc" rows="3" required></textarea></div>
+            <button type="submit">Publicar Ativo</button>
+        </form>
+    </div>
+</section>
+
+<section id="edit-profile" class="page-section">
+    <h2>Atualizar Meus Dados</h2>
+    <form id="edit-profile-form" onsubmit="event.preventDefault(); atualizarUsuarioLogado();">
+        <div class="form-group">
+            <label>Nome / Razão Social</label>
+            <input type="text" id="edit-nome" placeholder="Nome ou Razão Social" required>
         </div>
-            <div class="nav-menu">
-                <a onclick="showSection('home')">Vitrine</a>
-                <a id="nav-cart" onclick="toggleCart()">Carrinho (<span id="cart-count">0</span>)</a>
-                <!-- Botão de edição de conta para usuário cadastrado -->
-                <a id="nav-profile" class="hidden" onclick="abrirTelaEdicao()">Editar Perfil</a>
-                <!-- O Painel NIT fica oculto por padrão -->
-                <a id="nav-nit" class="hidden" onclick="showSection('nit-panel')">Painel NIT</a>
-                <a id="nav-login" onclick="showSection('login-section')">Login</a>
-                <a id="nav-reg" class="btn-register" onclick="showSection('register-step1')">Cadastrar-se</a>
-                <a id="nav-logout" class="hidden" onclick="logout()">Sair</a>
-            </div>
-    </nav>
-
-    <section id="home" class="page-section active-section">
-        <header class="search-container">
-            <h1>Mercado Digital de Patentes Acadêmicas</h1>
-            <p>Ativos de Propriedade Intelectual da UNIRIO</p>
-        </header>
-        <main class="catalog" id="patentCatalog"></main>
-    </section>
-
-    <section id="login-section" class="page-section">
-        <div class="form-container">
-            <h2>Entrar no Sistema</h2>
-            <form onsubmit="handleLogin(event)">
-                <div class="form-group"><label>E-mail</label><input type="email" id="login-email" required></div>
-                <div class="form-group"><label>Senha</label><input type="password" required></div>
-                <button type="submit">Entrar</button>
-                <button type="button" class="btn-cancel" onclick="showSection('home')">Cancelar</button>
-            </form>
+        <div class="form-group">
+            <label>CPF / CNPJ</label>
+            <input type="text" id="edit-documento" placeholder="CPF ou CNPJ" readonly required>
         </div>
-    </section>
-
-    <section id="register-step1" class="page-section">
-        <div class="form-container">
-            <h2>Criar nova conta</h2>
-            <button onclick="showRegisterForm('Pesquisador')">Sou Pesquisador</button>
-            <button class="btn-secondary" onclick="showRegisterForm('Organização Interessada')">Sou Empresa</button>
-            <button class="btn-nit" onclick="showRegisterForm('NIT')">Sou Gestor do NIT</button>
+        <div class="form-group">
+            <label>E-mail</label>
+            <input type="email" id="edit-email" placeholder="Email" required>
         </div>
-    </section>
-
-    <section id="register-form" class="page-section">
-        <div class="form-container">
-            <h2 id="reg-title">Cadastro</h2>
-            <form onsubmit="handleRegistration(event)">
-                <div class="form-group"><label>Nome</label><input type="text" required></div>
-                <div class="form-group"><label id="label-doc">CPF/CNPJ</label><input type="text" required></div>
-                <div class="form-group"><label>E-mail</label><input type="email" id="reg-email" required></div>
-                <div class="form-group"><label>Senha</label><input type="password" required></div>
-                <button type="submit">Finalizar</button>
-                <button type="button" class="btn-cancel" onclick="showSection('register-step1')">Voltar</button>
-            </form>
+        <div class="form-group">
+            <label>Telefone</label>
+            <input type="text" id="edit-telefone" placeholder="Telefone">
         </div>
-    </section>
-
-    <section id="nit-panel" class="page-section">
-        <div class="form-container">
-            <h2>Painel NIT</h2>
-            <form onsubmit="handlePatentSubmit(event)">
-                <div class="form-group"><label>Título</label><input type="text" id="p-title" required></div>
-                <div class="form-group"><label>Área</label><select id="p-area"><option>Saúde</option><option>Tecnologia</option></select></div>
-                <div class="form-group"><label>Inventores</label><input type="text" id="p-inv" required></div>
-                <div class="form-group"><label>Resumo</label><textarea id="p-desc" rows="3" required></textarea></div>
-                <button type="submit">Publicar Ativo</button>
-            </form>
+        <div class="form-group">
+            <label>Endereço</label>
+            <input type="text" id="edit-endereco" placeholder="Endereço">
         </div>
-    </section>
 
-    <section id="edit-profile" class="page-section">
-            <h2>Atualizar Meus Dados</h2>
-            <form id="edit-profile-form" onsubmit="event.preventDefault(); atualizarUsuarioLogado();">
-                <div class="form-group">
-                    <label>Nome / Razão Social</label>
-                    <input type="text" id="edit-nome" placeholder="Nome ou Razão Social" required>
-                </div>
-                <div class="form-group">
-                    <label>CPF / CNPJ</label>
-                    <input type="text" id="edit-documento" placeholder="CPF ou CNPJ" required>
-                </div>
-                <div class="form-group">
-                    <label>E-mail</label>
-                    <input type="email" id="edit-email" placeholder="Email" required>
-                </div>
-                <div class="form-group">
-                    <label>Telefone</label>
-                    <input type="text" id="edit-telefone" placeholder="Telefone">
-                </div>
-                <div class="form-group">
-                    <label>Endereço</label>
-                    <input type="text" id="edit-endereco" placeholder="Endereço">
-                </div>
-
-                <div id="consultoria-container" class="form-group" style="display:none;">
-                    <label><input type="checkbox" id="edit-consultoria"> Disponível para Consultoria</label>
-                </div>
-
-                <button type="submit">Salvar Alterações</button>
-                <button type="button" class="btn-cancel" onclick="showSection('home')">Cancelar</button>
-            </form>
-    </section>
-
-    <aside id="cart-modal">
-        <h2>Meu Carrinho</h2>
-        <div id="cart-items"></div>
-        <div style="margin-top: 20px;">
-            <!-- Chame a função correta aqui -->
-            <button onclick="finalizarInteresse()">Finalizar Interesse</button>
-            <button class="btn-cancel" onclick="toggleCart()">Fechar</button>
+        <div id="consultoria-container" class="form-group" style="display:none;">
+            <label><input type="checkbox" id="edit-consultoria"> Disponível para Consultoria</label>
         </div>
-    </aside>
 
-    <script src="script.js"></script>
+        <button type="submit">Salvar Alterações</button>
+        <button type="button" class="btn-cancel" onclick="showSection('home')">Cancelar</button>
+    </form>
+</section>
+
+<aside id="cart-modal">
+    <h2>Meu Carrinho</h2>
+    <div id="cart-items"></div>
+    <div style="margin-top: 20px;">
+        <button onclick="finalizarInteresse()">Finalizar Interesse</button>
+        <button class="btn-cancel" onclick="toggleCart()">Fechar</button>
+    </div>
+</aside>
+
+<script src="script.js"></script>
 </body>
 </html>

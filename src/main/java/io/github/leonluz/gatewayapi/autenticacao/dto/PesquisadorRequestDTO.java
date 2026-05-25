@@ -6,8 +6,7 @@ public record PesquisadorRequestDTO(
         String telefone,
         String endereco,
         String cpf,
-        String nome,
-        Boolean disponibilidadeConsultoria
+        String nome
 ) {
     //verificacoes dps
 }
