@@ -1,7 +1,6 @@
 package io.github.leonluz.gatewayapi.autenticacao.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.*;
 import io.github.leonluz.gatewayapi.autenticacao.dto.PesquisadorRequestDTO;
 import io.github.leonluz.gatewayapi.patentes.model.Patente;
 import jakarta.persistence.*;
@@ -24,13 +23,15 @@ public class Pesquisador extends Usuario {
     @Column(name = "disponibilidade_consultoria")
     private boolean disponibilidadeConsultoria;
 
-    @ManyToMany(mappedBy = "pesquisadoresAssociados")
-    @JsonIgnore // Ignorando duplicações!!!
+    @ManyToMany(mappedBy = "pesquisadoresAssociados", fetch = FetchType.EAGER) // EAGER garante que o Hibernate carregue os IDs
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+    @JsonIdentityReference(alwaysAsId = true)
     private List<Patente> patentesAssociadas = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "id_nit", columnDefinition = "BINARY(16)")
-    @JsonIgnoreProperties("pesquisadores")
+    @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "idUsuario")
+    @JsonIdentityReference(alwaysAsId = true)
     private Usuario nit;
 
     public Pesquisador(PesquisadorRequestDTO dto) {
