@@ -1,6 +1,7 @@
 package io.github.leonluz.gatewayapi.autenticacao.service;
 
 import io.github.leonluz.gatewayapi.autenticacao.dto.NITRequestDTO;
+import io.github.leonluz.gatewayapi.autenticacao.dto.NitUpdateDTO;
 import io.github.leonluz.gatewayapi.autenticacao.model.NIT;
 import io.github.leonluz.gatewayapi.autenticacao.model.TipoPerfil;
 import io.github.leonluz.gatewayapi.autenticacao.repository.NITRepository;
@@ -41,12 +42,11 @@ public class NITService {
         return nitSalvo;
     }
 
-    public NIT atualizarNit(UUID id, NITRequestDTO dto) {
+    public NIT atualizarNit(UUID id, NitUpdateDTO dto) {
         NIT nitExistente = nitRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("NIT não encontrado"));
 
         nitExistente.setEmail(dto.email());
-        nitExistente.setSenha(dto.senha());
         nitExistente.setTelefone(dto.telefone());
         nitExistente.setEndereco(dto.endereco());
         nitExistente.setRazaoSocial(dto.razaoSocial());
