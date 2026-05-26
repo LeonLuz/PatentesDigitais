@@ -432,7 +432,9 @@ async function handlePatentSubmit(event) {
         valor: 0.0,
         pesquisadores: document.getElementById('p-inv').value,
         documento: null,
-        status: "RASCUNHO", // <--- ADICIONE ESTA LINHA
+        status: currentUserRole === "NIT"
+            ? "DISPONIVEL"
+            : "RASCUNHO",
         idsPesquisadoresAssociados: []
     };
 
