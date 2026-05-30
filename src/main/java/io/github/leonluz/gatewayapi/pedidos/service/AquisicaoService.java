@@ -1,14 +1,11 @@
 package io.github.leonluz.gatewayapi.pedidos.service;
 
-import io.github.leonluz.gatewayapi.autenticacao.model.Usuario;
-import io.github.leonluz.gatewayapi.autenticacao.repository.UsuarioRepository;
 import io.github.leonluz.gatewayapi.patentes.model.Patente;
 import io.github.leonluz.gatewayapi.patentes.model.StatusPatente;
 import io.github.leonluz.gatewayapi.patentes.repository.PatenteRepository;
-import io.github.leonluz.gatewayapi.pedidos.dto.AquisicaoRequestDTO;
-import io.github.leonluz.gatewayapi.pedidos.dto.ItemAquisicaoRequestDTO;
 import io.github.leonluz.gatewayapi.pedidos.model.Aquisicao;
 import io.github.leonluz.gatewayapi.pedidos.model.ItemAquisicao;
+import io.github.leonluz.gatewayapi.pedidos.model.StatusAquisicao;
 import io.github.leonluz.gatewayapi.pedidos.repository.AquisicaoRepository;
 import io.github.leonluz.gatewayapi.pedidos.repository.CarrinhoRepository;
 import org.springframework.stereotype.Service;
@@ -23,17 +20,14 @@ public class AquisicaoService {
     private final AquisicaoRepository aquisicaoRepository;
     private final CarrinhoRepository carrinhoRepository;
     private final PatenteRepository patenteRepository;
-    private final UsuarioRepository usuarioRepository;
 
 
     public AquisicaoService(AquisicaoRepository aquisicaoRepository,
                             CarrinhoRepository carrinhoRepository,
-                            PatenteRepository patenteRepository,
-                            UsuarioRepository usuarioRepository) {
+                            PatenteRepository patenteRepository) {
         this.aquisicaoRepository = aquisicaoRepository;
         this.carrinhoRepository = carrinhoRepository;
         this.patenteRepository = patenteRepository;
-        this.usuarioRepository = usuarioRepository;
     }
 
     @Transactional
@@ -76,29 +70,20 @@ public class AquisicaoService {
     }
 
     @Transactional
-    public Aquisicao criarAquisicao(AquisicaoRequestDTO dto) {
-        Usuario usuario = usuarioRepository.findById(dto.idUsuario())
-                .orElseThrow(() -> new RuntimeException("Comprador não encontrado"));
+    public void cancelarAquisicao(UUID idAquisicao) {
+        Aquisicao aquisicao = aquisicaoRepository.findById(idAquisicao)
+                .orElseThrow(() -> new RuntimeException("Aquisição não encontrada"));
 
-        Aquisicao aquisicao = new Aquisicao(usuario);
+        // Altera o status da aquisição
+        aquisicao.setStatusAquisicao(StatusAquisicao.CANCELADA); // Assumindo que o enum exista
+        aquisicaoRepository.save(aquisicao);
 
-        if (dto.itensAquisicao() != null) {
-            for (ItemAquisicaoRequestDTO itemDto : dto.itensAquisicao()) {
-                Patente patente = patenteRepository.findById(itemDto.idPatente())
-                        .orElseThrow(() -> new RuntimeException("Patente não encontrada"));
-
-                ItemAquisicao item = new ItemAquisicao();
-                item.setIdItem(UUID.randomUUID());
-                item.setIdAquisicao(aquisicao);
-                item.setPatente(patente);
-                item.setTipoAquisicao(itemDto.tipoAquisicao());
-                item.setFimLicenca(itemDto.fimLicenca());
-
-                aquisicao.getItens().add(item);
-            }
+        // Libera as patentes atreladas aos itens
+        for (ItemAquisicao item : aquisicao.getItens()) {
+            Patente patente = item.getPatente();
+            patente.setStatus(StatusPatente.DISPONIVEL);
+            patenteRepository.save(patente);
         }
-
-        return aquisicaoRepository.save(aquisicao);
     }
 
     @Transactional(readOnly = true)
