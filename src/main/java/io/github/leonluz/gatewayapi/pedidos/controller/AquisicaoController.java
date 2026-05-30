@@ -26,10 +26,10 @@ public class AquisicaoController {
                 .body("Checkout finalizado com sucesso! ID da Transação: " + idAquisicao);
     }
 
-    @PostMapping
-    public ResponseEntity<Aquisicao> criarAquisicao(@RequestBody AquisicaoRequestDTO dto) {
-        Aquisicao novaAquisicao = aquisicaoService.criarAquisicao(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(novaAquisicao);
+    @PutMapping("/cancelar/{idAquisicao}")
+    public ResponseEntity<String> cancelarAquisicao(@PathVariable UUID idAquisicao) {
+        aquisicaoService.cancelarAquisicao(idAquisicao);
+        return ResponseEntity.ok("Aquisição cancelada e patentes liberadas!");
     }
 
     @GetMapping("/{id}")
