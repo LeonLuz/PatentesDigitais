@@ -23,8 +23,8 @@
 * **Concorrência:** 20 requisições simultâneas mantidas de forma constante no estágio principal (VUs).
 * **Taxa de Erro:** 0.00% (Sucesso absoluto em todas as tentativas).
 
+![Imagem do teste1 grafana](image-5.png)
 ![Imagem do teste1](image.png)
-
 ![Imagens do teste1](image-1.png)
 
 **Levantamento de hipóteses:**
@@ -54,6 +54,7 @@ Como o sistema possui regras rígidas de negócio e integridade (ex: garantir qu
 * **Concorrência:** 20 requisições simultâneas mantidas de forma constante no estágio principal (VUs).
 * **Taxa de Erro:** 0.00% (Sucesso absoluto nas respostas HTTP 200).
 
+![Imagem teste2 grafana](image-4.png)
 ![Imagem teste2](image-2.png)
 ![Imagem teste2](image-3.png)
 
