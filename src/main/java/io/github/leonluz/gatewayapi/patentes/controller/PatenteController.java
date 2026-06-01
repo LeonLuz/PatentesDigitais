@@ -72,4 +72,9 @@ public class PatenteController {
         response.getOutputStream().write(pdfBytes);
         response.getOutputStream().flush();
     }
+
+    @GetMapping("/ids")
+    public ResponseEntity<List<String>> listarIdPatentes(){
+        return ResponseEntity.ok(patenteService.listarIdPatentes());
+    }
 }

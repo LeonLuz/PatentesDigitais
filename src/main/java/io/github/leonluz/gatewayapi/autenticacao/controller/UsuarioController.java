@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -120,5 +121,10 @@ public class UsuarioController {
     @GetMapping("/pesquisador/buscar")
     public ResponseEntity<Pesquisador> buscarPorNome(@RequestParam("nome") String nome) {
         return ResponseEntity.ok(pesquisadorService.findByNome(nome));
+    }
+
+    @GetMapping("/ids")
+    public ResponseEntity<List<String>> listarIdUsuarios() {
+        return ResponseEntity.ok(usuarioService.listarIdUsuarios());
     }
 }
