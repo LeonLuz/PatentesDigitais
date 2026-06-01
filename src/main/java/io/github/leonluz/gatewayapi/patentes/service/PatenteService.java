@@ -144,4 +144,9 @@ public class PatenteService {
             throw new RuntimeException("Erro ao ler o arquivo PDF", e);
         }
     }
+
+    @Transactional(readOnly = true)
+    public List<String> listarIdPatentes() {
+        return this.patenteRepository.listarTodosIds();
+    }
 }

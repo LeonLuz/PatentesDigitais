@@ -5,6 +5,7 @@ import io.github.leonluz.gatewayapi.autenticacao.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -45,5 +46,10 @@ public class UsuarioService {
             throw new RuntimeException("Usuário não encontrado para exclusão.");
         }
         usuarioRepository.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public List<String> listarIdUsuarios() {
+        return this.usuarioRepository.listarTodosIds();
     }
 }

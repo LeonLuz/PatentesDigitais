@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -24,4 +26,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, UUID> {
 
     @Query(value = "SELECT COUNT(*) FROM USUARIO_ASSOCIADO " + "WHERE id_instituicao = UUID_TO_BIN(:idInstituicao) " + "AND id_usuario_associado = UUID_TO_BIN(:idAssociado)", nativeQuery = true)
     int existsVinculo(@Param("idInstituicao") UUID idInstituicao, @Param("idAssociado") UUID idAssociado);
+
+    @Query(value = "SELECT BIN_TO_UUID(id_usuario) FROM USUARIO", nativeQuery = true)
+    List<String> listarTodosIds();
 }

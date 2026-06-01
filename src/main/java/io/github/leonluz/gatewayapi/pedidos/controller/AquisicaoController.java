@@ -21,9 +21,15 @@ public class AquisicaoController {
 
     @PostMapping("/checkout/{idUsuario}")
     public ResponseEntity<String> realizarCheckout(@PathVariable UUID idUsuario) {
-        UUID idAquisicao = aquisicaoService.finalizarCheckout(idUsuario);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body("Checkout finalizado com sucesso! ID da Transação: " + idAquisicao);
+        try{
+            UUID idAquisicao = aquisicaoService.finalizarCheckout(idUsuario);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body("Checkout finalizado com sucesso! ID da Transação: " + idAquisicao);
+        }
+        catch(Exception e){
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     @PutMapping("/cancelar/{idAquisicao}")
