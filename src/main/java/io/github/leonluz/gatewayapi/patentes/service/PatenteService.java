@@ -1,5 +1,9 @@
 package io.github.leonluz.gatewayapi.patentes.service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import io.github.leonluz.gatewayapi.patentes.dto.PatenteVitrineDTO;
+import java.util.stream.Collectors;
 import io.github.leonluz.gatewayapi.autenticacao.model.Pesquisador;
 import io.github.leonluz.gatewayapi.autenticacao.model.Usuario;
 import io.github.leonluz.gatewayapi.autenticacao.model.TipoPerfil;
@@ -148,5 +152,18 @@ public class PatenteService {
     @Transactional(readOnly = true)
     public List<String> listarIdPatentes() {
         return this.patenteRepository.listarTodosIds();
+    }
+
+    public List<PatenteVitrineDTO> listarPatentesParaVitrine() {
+        List<Patente> patentesDoBanco = patenteRepository.buscarTodasParaVitrine(); 
+        
+        return patentesDoBanco.stream()
+                .map(patente -> new PatenteVitrineDTO(patente))
+                .collect(Collectors.toList());
+    }
+
+    public Page<PatenteVitrineDTO> listarPatentesParaVitrine(Pageable pageable) {
+        Page<Patente> paginaDoBanco = patenteRepository.buscarTodasParaVitrine(pageable); 
+        return paginaDoBanco.map(patente -> new PatenteVitrineDTO(patente));
     }
 }

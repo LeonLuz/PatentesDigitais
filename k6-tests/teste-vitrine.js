@@ -14,8 +14,7 @@ export const options = {
 };
 
 export default function () {
-  // A rota de busca de patentes (A Vitrine)
-  const url = 'http://localhost:8080/api/patentes';
+  const url = 'http://localhost:8080/api/patentes/vitrine';
 
   const res = http.get(url);
 

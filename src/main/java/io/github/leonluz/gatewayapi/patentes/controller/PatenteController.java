@@ -1,5 +1,10 @@
 package io.github.leonluz.gatewayapi.patentes.controller;
 
+import io.github.leonluz.gatewayapi.patentes.dto.PatenteVitrineDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+
 import io.github.leonluz.gatewayapi.patentes.dto.PatenteRequestDTO;
 import io.github.leonluz.gatewayapi.patentes.model.Patente;
 import io.github.leonluz.gatewayapi.patentes.model.StatusPatente;
@@ -76,5 +81,12 @@ public class PatenteController {
     @GetMapping("/ids")
     public ResponseEntity<List<String>> listarIdPatentes(){
         return ResponseEntity.ok(patenteService.listarIdPatentes());
+    }
+
+    // CORREÇÃO APLICADA: Mantivemos apenas a rota Otimizada com Paginação
+    @GetMapping("/vitrine")
+    public ResponseEntity<Page<PatenteVitrineDTO>> listarVitrine(@PageableDefault(size = 10) Pageable pageable) {
+        Page<PatenteVitrineDTO> vitrinePaginada = patenteService.listarPatentesParaVitrine(pageable);
+        return ResponseEntity.ok(vitrinePaginada);
     }
 }
