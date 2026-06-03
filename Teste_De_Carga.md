@@ -30,6 +30,8 @@
 **Levantamento de hipóteses:**
 Como o sistema possui regras rígidas de negócio e integridade (ex: garantir que o CPF e o E-mail sejam únicos na base). A cada nova inserção, o motor do MySQL precisa verificar, bloquear e atualizar as árvores de índices destas colunas. À medida que a tabela crescer para milhões de registros, o custo computacional destas validações de Unique Constraint freará a vazão máxima de escritas por segundo (req/s).
 
+---
+
 **Nome do Serviço 2:** Listagem de Patentes (Vitrine)
 **Tipo de operações:** Leitura (Consulta/Busca na base de dados)
 
@@ -65,6 +67,20 @@ Embora a API tenha suportado a carga sem erros, o tempo de resposta ultrapassou 
 
 2. **Problema de "N+1 Queries" do Hibernate:** Como a entidade `Patente` possui relacionamentos com `Pesquisador` e `Titular`, o ORM pode estar realizando uma consulta inicial para buscar as patentes e, em seguida, disparando múltiplas consultas adicionais para buscar os relacionamentos de cada uma, o que multiplica o tempo de acesso ao banco.
 3. **Ausência de Paginação e Cache:** A rota atual aparentemente busca todos os registros de uma vez. À medida que o banco crescer, essa rota sofrerá degradação de performance e risco de esgotamento de memória. Além disso, por ser uma vitrine (dados de alta leitura e baixa alteração), a ausência de uma camada de cache em memória obriga o motor do banco de dados a recalcular e ler o disco em toda requisição, configurando um gargalo claro de I/O.
+
+**Otimização:** Após a análise dos primeiros testes de carga gerados pelo K6, identificamos gargalos críticos de latência e um alto consumo de banda na rota principal da aplicação (`/api/patentes/vitrine`). O tráfego excessivo de rede e o esgotamento do banco de dados elevaram nosso `p(95)` para níveis inaceitáveis.
+
+Para garantir alta disponibilidade e atingir nossa meta de SLA (abaixo de 500ms), refatoramos a arquitetura da rota aplicando os seguintes padrões de projeto:
+
+* **Data Transfer Objects (DTO) e Surrogate Keys:** Criamos o `PatenteVitrineDTO` para blindar a porta de saída da API. Em vez de expor a entidade completa do banco, a API agora devolve apenas os campos essenciais (título, resumo curto) e oculta as chaves primárias numéricas em favor de UUIDs. Isso reduziu o tamanho do payload em mais de 90% e adicionou uma camada extra de segurança contra ataques de enumeração.
+* **Mitigação do Problema de N+1 Queries:** O uso de lógicas avançadas de herança (`instanceof` para descobrir o nome real do titular) estava bombardeando o MySQL com múltiplas requisições sequenciais. Resolvemos isso na camada do `Repository` forçando o Spring Data a utilizar um `LEFT JOIN FETCH` via JPQL, resolvendo todo o cruzamento de dados em uma única viagem ao banco.
+* **Paginação Estruturada:** Implementamos a interface `Pageable` do Spring Boot para fatiar a entrega dos dados. Em vez de carregar a tabela inteira na memória RAM do servidor Java, a aplicação agora processa e entrega lotes enxutos de 10 itens por vez, garantindo previsibilidade no consumo de recursos.
+
+![Imagem teste2 otimizado](image-10.png)
+![Imagem teste2 otimizado](image-11.png)
+![Imagem teste2 grafana otimizado](image-12.png)
+
+---
 
 **Nome do Serviço 3:** Realizar Checkout (Aquisição)
 **Tipo de operações:** Leitura e Escrita
