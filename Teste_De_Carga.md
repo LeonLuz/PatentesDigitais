@@ -2,13 +2,13 @@
 **Tipo de operações:** Inserção (Escrita Transacional na base de dados)
 
 **Arquivos envolvidos:**
-* UsuarioController.java
-* PesquisadorRequestDTO.java
-* PesquisadorService.java
-* PesquisadorRepository.java
+* [UsuarioController.java](src/main/java/io/github/leonluz/gatewayapi/autenticacao/controller/UsuarioController.java)
+* [PesquisadorRequestDTO.java](src/main/java/io/github/leonluz/gatewayapi/autenticacao/dto/PesquisadorRequestDTO.java)
+* [PesquisadorService.java](src/main/java/io/github/leonluz/gatewayapi/autenticacao/service/PesquisadorService.java)
+* [PesquisadorRepository.java](src/main/java/io/github/leonluz/gatewayapi/autenticacao/repository/PesquisadorRepository.java)
 
 **Arquivos com o código fonte de medição do SLA:**
-* teste-cadastro.js
+* [teste-cadastro.js](k6-tests/teste-cadastro.js)
 
 **Data da medição:** 29/05/2026
 
@@ -36,12 +36,12 @@ Como o sistema possui regras rígidas de negócio e integridade (ex: garantir qu
 **Tipo de operações:** Leitura (Consulta/Busca na base de dados)
 
 **Arquivos envolvidos:**
-* PatenteController.java
-* PatenteService.java
-* PatenteRepository.java
+* [PatenteController.java](src/main/java/io/github/leonluz/gatewayapi/patentes/controller/PatenteController.java)
+* [PatenteService.java](src/main/java/io/github/leonluz/gatewayapi/patentes/service/PatenteService.java)
+* [PatenteRepository.java](src/main/java/io/github/leonluz/gatewayapi/patentes/repository/PatenteRepository.java)
 
 **Arquivos com o código fonte de medição do SLA:**
-* teste-vitrine.js
+* [teste-vitrine.js](k6-tests/teste-vitrine.js)
 
 **Data da medição:** 29/05/2026
 
@@ -68,13 +68,39 @@ Embora a API tenha suportado a carga sem erros, o tempo de resposta ultrapassou 
 2. **Problema de "N+1 Queries" do Hibernate:** Como a entidade `Patente` possui relacionamentos com `Pesquisador` e `Titular`, o ORM pode estar realizando uma consulta inicial para buscar as patentes e, em seguida, disparando múltiplas consultas adicionais para buscar os relacionamentos de cada uma, o que multiplica o tempo de acesso ao banco.
 3. **Ausência de Paginação e Cache:** A rota atual aparentemente busca todos os registros de uma vez. À medida que o banco crescer, essa rota sofrerá degradação de performance e risco de esgotamento de memória. Além disso, por ser uma vitrine (dados de alta leitura e baixa alteração), a ausência de uma camada de cache em memória obriga o motor do banco de dados a recalcular e ler o disco em toda requisição, configurando um gargalo claro de I/O.
 
-**Otimização:** Após a análise dos primeiros testes de carga gerados pelo K6, identificamos gargalos críticos de latência e um alto consumo de banda na rota principal da aplicação (`/api/patentes/vitrine`). O tráfego excessivo de rede e o esgotamento do banco de dados elevaram nosso `p(95)` para níveis inaceitáveis.
+**Otimizações Feitas:** Após a análise dos primeiros testes de carga gerados pelo K6, identificamos gargalos críticos de latência e um alto consumo de banda na rota principal da aplicação (`/api/patentes/vitrine`). O tráfego excessivo de rede e o esgotamento do banco de dados elevaram nosso `p(95)` para níveis inaceitáveis.
 
 Para garantir alta disponibilidade e atingir nossa meta de SLA (abaixo de 500ms), refatoramos a arquitetura da rota aplicando os seguintes padrões de projeto:
 
 * **Data Transfer Objects (DTO) e Surrogate Keys:** Criamos o `PatenteVitrineDTO` para blindar a porta de saída da API. Em vez de expor a entidade completa do banco, a API agora devolve apenas os campos essenciais (título, resumo curto) e oculta as chaves primárias numéricas em favor de UUIDs. Isso reduziu o tamanho do payload em mais de 90% e adicionou uma camada extra de segurança contra ataques de enumeração.
 * **Mitigação do Problema de N+1 Queries:** O uso de lógicas avançadas de herança (`instanceof` para descobrir o nome real do titular) estava bombardeando o MySQL com múltiplas requisições sequenciais. Resolvemos isso na camada do `Repository` forçando o Spring Data a utilizar um `LEFT JOIN FETCH` via JPQL, resolvendo todo o cruzamento de dados em uma única viagem ao banco.
 * **Paginação Estruturada:** Implementamos a interface `Pageable` do Spring Boot para fatiar a entrega dos dados. Em vez de carregar a tabela inteira na memória RAM do servidor Java, a aplicação agora processa e entrega lotes enxutos de 10 itens por vez, garantindo previsibilidade no consumo de recursos.
+
+**Nome do Serviço 2 (Otimizado):** Listagem de Patentes (Vitrine)
+
+**Tipo de operações:** Leitura
+
+**Arquivos envolvidos:**
+* [PatenteController.java](src/main/java/io/github/leonluz/gatewayapi/patentes/controller/PatenteController.java)
+* [PatenteService.java](src/main/java/io/github/leonluz/gatewayapi/patentes/service/PatenteService.java)
+* [PatenteRepository.java](src/main/java/io/github/leonluz/gatewayapi/patentes/repository/PatenteRepository.java)
+* [PatenteVitrineDTO.java](src/main/java/io/github/leonluz/gatewayapi/patentes/dto/PatenteVitrineDTO.java)
+
+**Arquivos com o código fonte de medição do SLA:**
+* [teste-vitrine.js](k6-tests/teste-vitrine.js)
+
+**Data da medição:** 03/06/2026
+
+**Descrição das configurações:**
+* **Ambiente da Aplicação:** Servidor Tomcat embutido no Spring Boot rodando localmente (Porta 8080).
+* **Persistência:** Banco de Dados Relacional MySQL local (v8.0.44), gerenciado via Hibernate/JPA (Versão 6.6.49) utilizando pool de conexões HikariCP.
+* **Ambiente de Teste:** Máquina Windows local, disparos realizados via CLI pelo Grafana K6 com métricas exportadas em tempo real e painel gerado via Grafana Cloud.
+
+**Testes de carga (SLA):**
+* **Latência (Tempo de Resposta p95):** 42 ms *(SLA de 500ms atingido com extrema folga, registrando média de 22ms)*
+* **Vazão:** Média de 15 requisições por segundo (Pico de 20 reqs/s). Total de 795 requisições HTTP processadas com sucesso.
+* **Taxa de Erro (HTTP Failures):** 0% (Nenhuma falha registrada).
+* **Concorrência:** 20 requisições simultâneas mantidas (VUs).
 
 ![Imagem teste2 otimizado](image-10.png)
 ![Imagem teste2 otimizado](image-11.png)
