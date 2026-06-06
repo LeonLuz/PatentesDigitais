@@ -1,27 +1,37 @@
 import http from 'k6/http';
-import { check, sleep, fail } from 'k6';
+import { check, sleep } from 'k6';
 import { Trend, Rate, Counter } from 'k6/metrics';
 
 export let CheckoutDuration = new Trend('checkout_duration');
 export let CheckoutFailRate = new Rate('checkout_fail_rate');
+export let CheckoutConflictRate = new Rate('checkout_conflict_rate');
 export let CheckoutSuccessRate = new Rate('checkout_success_rate');
 export let CheckoutReqs = new Counter('checkout_reqs');
 
 export const options = {
   stages: [
-    { duration: '15s', target: 5 },
-    { duration: '30s', target: 5 },
-
     { duration: '15s', target: 10 },
     { duration: '30s', target: 10 },
-
-    { duration: '15s', target: 15 },
-    { duration: '30s', target: 15 },
 
     { duration: '15s', target: 20 },
     { duration: '30s', target: 20 },
 
-    { duration: '15s', target: 0 },
+    { duration: '15s', target: 40 },
+    { duration: '30s', target: 40 },
+
+    { duration: '15s', target: 60 },
+    { duration: '30s', target: 60 },
+
+    { duration: '15s', target: 80 },
+    { duration: '30s', target: 80 },
+
+    { duration: '15s', target: 100 },
+    { duration: '45s', target: 100 },
+
+    { duration: '20s', target: 150 },
+    { duration: '45s', target: 150 },
+
+    { duration: '20s', target: 0 },
   ],
   thresholds: {
     'checkout_duration': ['p(95)<500'],
@@ -59,7 +69,6 @@ export default function (data) {
   const usuariosOrgsDoBanco = data.usuariosDoBanco;
   const todasPatentesDoBanco = data.patentesDoBanco;
 
-  // Forçar a VU a usar sempre o mesmo usuário para evitar race condition do mesmo usuário
   const indexUsuario = (__VU - 1) % usuariosOrgsDoBanco.length;
   const idUsuario = usuariosOrgsDoBanco[indexUsuario];
   const idPatente = todasPatentesDoBanco[Math.floor(Math.random() * todasPatentesDoBanco.length)];
@@ -76,22 +85,22 @@ export default function (data) {
     const urlCheckout = `http://localhost:8080/api/aquisicoes/checkout/${idUsuario}`;
     const resCheckout = http.post(urlCheckout, null);
 
-    // Alimentando as métricas
     CheckoutReqs.add(1);
     CheckoutDuration.add(resCheckout.timings.duration);
-    CheckoutFailRate.add(resCheckout.status !== 201);
-    CheckoutSuccessRate.add(resCheckout.status === 201);
 
-    const checkoutSucesso = check(resCheckout, {
-      '2. Checkout de Aquisição Realizado (201)': (r) => r.status === 201,
+    const isSuccess = resCheckout.status === 201;
+    const isConflict = resCheckout.status === 409;
+    const isRealFailure = !isSuccess && !isConflict;
+
+    CheckoutSuccessRate.add(isSuccess);
+    CheckoutConflictRate.add(isConflict);
+    CheckoutFailRate.add(isRealFailure);
+
+    check(resCheckout, {
+      '2. Emissão de Checkout Processada (201 ou 409)': (r) => r.status === 201 || r.status === 409,
     });
 
-    if (!checkoutSucesso) {
-      fail(`Checkout falhou criticamente com status: ${resCheckout.status}`);
-    }
-
-    // Cancela a aquisição para liberar as patentes para os próximos usuários
-    if (resCheckout.body) {
+    if (isSuccess && resCheckout.body) {
       const match = resCheckout.body.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i);
       if (match) {
         const idAquisicaoCriada = match[0];

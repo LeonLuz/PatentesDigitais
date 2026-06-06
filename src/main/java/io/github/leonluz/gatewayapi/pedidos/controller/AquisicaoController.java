@@ -21,14 +21,17 @@ public class AquisicaoController {
 
     @PostMapping("/checkout/{idUsuario}")
     public ResponseEntity<String> realizarCheckout(@PathVariable UUID idUsuario) {
-        try{
+        try {
             UUID idAquisicao = aquisicaoService.finalizarCheckout(idUsuario);
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body("Checkout finalizado com sucesso! ID da Transação: " + idAquisicao);
-        }
-        catch(Exception e){
+        } catch (IllegalStateException e) {
+            // Retornar 409 para concorrência
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        } catch (Exception e) {
             e.printStackTrace();
-            throw e;
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro interno no servidor: " + e.getMessage());
         }
     }
 
