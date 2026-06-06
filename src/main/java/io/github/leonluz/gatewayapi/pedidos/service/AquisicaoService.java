@@ -11,6 +11,7 @@ import io.github.leonluz.gatewayapi.pedidos.repository.CarrinhoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,7 +21,6 @@ public class AquisicaoService {
     private final AquisicaoRepository aquisicaoRepository;
     private final CarrinhoRepository carrinhoRepository;
     private final PatenteRepository patenteRepository;
-
 
     public AquisicaoService(AquisicaoRepository aquisicaoRepository,
                             CarrinhoRepository carrinhoRepository,
@@ -43,24 +43,22 @@ public class AquisicaoService {
             throw new IllegalStateException("O carrinho está vazio. Adicione patentes antes de finalizar.");
         }
 
+        // Ordenar os ids para evitar deadlock
+        Collections.sort(idsPatentes);
+
         UUID idAquisicao = UUID.randomUUID();
         aquisicaoRepository.criarAquisicao(idAquisicao, idUsuario);
 
+        // Update de todas as patentes de uma vez
+        int totalAtualizado = patenteRepository.atualizarStatusEmMassa(idsPatentes, StatusPatente.EM_PROCESSO_DE_COMPRA);
+
+        if (totalAtualizado != idsPatentes.size()) {
+            throw new IllegalStateException("Uma ou mais patentes escolhidas não estão mais disponíveis para compra.");
+        }
+
         for (UUID idPatente : idsPatentes) {
-            Patente patente = patenteRepository.findById(idPatente)
-                    .orElseThrow(() -> new IllegalArgumentException("Patente não encontrada no banco."));
-
-            // Validação de concorrência
-            if (!"DISPONIVEL".equals(patente.getStatus().name())) {
-                throw new IllegalStateException("A patente " + patente.getTitulo() + " não está mais disponível para compra.");
-            }
-
-
             UUID idItemAquisicao = UUID.randomUUID();
             aquisicaoRepository.adicionarItemAquisicao(idItemAquisicao, idAquisicao, idPatente);
-
-            patente.setStatus(StatusPatente.EM_PROCESSO_DE_COMPRA);
-            patenteRepository.save(patente);
         }
 
         // Limpa a "lista de intenção" esvaziando o carrinho
@@ -75,7 +73,7 @@ public class AquisicaoService {
                 .orElseThrow(() -> new RuntimeException("Aquisição não encontrada"));
 
         // Altera o status da aquisição
-        aquisicao.setStatusAquisicao(StatusAquisicao.CANCELADA); // Assumindo que o enum exista
+        aquisicao.setStatusAquisicao(StatusAquisicao.CANCELADA);
         aquisicaoRepository.save(aquisicao);
 
         // Libera as patentes atreladas aos itens
