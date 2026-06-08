@@ -113,16 +113,14 @@ Para garantir alta disponibilidade e atingir nossa meta de SLA (abaixo de 500ms)
 
 **Arquivos envolvidos:**
 
-* UsuarioController.java
-* PatenteController.java
-* CarrinhoController.java
-* AquisicaoController.java
+* [UsuarioController.java](src/main/java/io/github/leonluz/gatewayapi/autenticacao/controller/UsuarioController.java)
+* [PatenteController.java](src/main/java/io/github/leonluz/gatewayapi/patentes/controller/PatenteController.java)
+* [CarrinhoController.java](src/main/java/io/github/leonluz/gatewayapi/pedidos/controller/CarrinhoController.java)
+* [AquisicaoController.java](src/main/java/io/github/leonluz/gatewayapi/pedidos/controller/AquisicaoController.java)
 
 **Arquivos com o código fonte de medição do SLA:**
 
 * teste-aquisicao-checkout.js
-
-**Data da medição:** 01/06/2026
 
 **Descrição das configurações:**
 
@@ -132,23 +130,67 @@ Para garantir alta disponibilidade e atingir nossa meta de SLA (abaixo de 500ms)
 
 * **Ambiente de Teste:** Máquina Windows local, disparos realizados via Windows PowerShell, com monitoramento em tempo real via InfluxDB 1.8.
 
+**MEDIÇÃO 1** (como atualizei o teste, fiz uma nova medição na versão anterior)
+
+**Data da medição:** 05/06/2026
+
 **Testes de carga (SLA):**
 
-* **Latência (Tempo de Resposta Médio - p95):** 18.35 ms
+* **Latência (Tempo de Resposta Médio - p95):** 55.43 ms
 
-* **Vazão:** 21.47 requisições por segundo (Total de 4199 checks realizados).
+* **Vazão:** 89.92 requisições por segundo (Total de 31478 checks realizados).
 
-* **Concorrência:** 20 requisições simultâneas mantidas de forma constante (VUs).
+* **Concorrência:** 150 requisições simultâneas mantidas de forma constante (VUs).
 
-* **Taxa de Erro:** 3.17% (Falhas na validação da transação de aquisição).
+* **Taxa de Erro:** 13.35% (Falhas na validação da transação de aquisição).
 
 ![Imagem teste3 grafana](image-6.png)
 ![Imagem teste3 PowerShell](image-7.png)
 
 **LEVANTAMENTO DE HIPÓTESES dos potenciais gargalos do sistema que influenciam esta funcionalidade:**
 
-**Concorrência no Controle de Estoque (Race Condition):** A taxa de falha de 3.17% pode indicar que o sistema está falhando ao tentar reservar itens em estoque simultaneamente.
+**Concorrência no Controle de Estoque (Race Condition):** A taxa de falha de 13.35% pode indicar que o sistema está falhando ao tentar reservar itens em estoque simultaneamente.
 
 **Saturação do Pool de Conexões:** Como a operação de checkout envolve múltiplas tabelas (Carrinho, Estoque, Transação), se o HikariCP estiver com um limite de conexões baixo, as threads do Tomcat podem ficar em estado de WAITING, esperando uma conexão livre com o MySQL, o que explica a variação na latência em cenários de alta concorrência.
 
 **Latência de Escrita (I/O do Banco):** A necessidade de garantir o ACID em múltiplas inserções de tabelas distintas exige que o MySQL faça o flush dos logs de transação para o disco a cada checkout. Tornando-se um gargalo que limita a vazão (Throughput).
+
+**MEDIÇÃO 2**
+
+**Data da medição:** 05/06/2026
+
+**Testes de carga (SLA):**
+
+* **Latência (Tempo de Resposta Médio - p95):** 82.14 ms
+
+* **Vazão:** 80.68 requisições por segundo (Total de 29958 checks realizados).
+
+* **Concorrência:** 150 requisições simultâneas mantidas de forma constante (VUs).
+
+* **Taxa de Erro:** 0.03% (Falhas na validação da transação de aquisição).
+
+![Imagem teste3 grafana v2](image-13.png)
+![Imagem teste3 PowerShell v2](image-14.png)
+
+**Comparação:**
+
+|   Métricas   |  Medição 1  |  Medição 2  |
+|:------------:|:-----------:|:-----------:|
+|   Latência   |  55.43 ms   |  82.14 ms   |
+|    Vazão     | 84.92 req/s | 80.62 req/s |
+| Concorrência |   150 VUs   |   150 VUs   |
+| Taxa de Erro |   13.35%    |   0.03%     |
+
+**Arquivos modificados:** 
+* [AquisicaoController.java](src/main/java/io/github/leonluz/gatewayapi/pedidos/controller/AquisicaoController.java)
+* [AquisicaoService.java](src/main/java/io/github/leonluz/gatewayapi/pedidos/service/AquisicaoService.java)
+* [PatenteRepository.java](src/main/java/io/github/leonluz/gatewayapi/patentes/repository/PatenteRepository.java)
+* [application.yml](src/main/resources/application.yml)
+* [teste-aquisicao-checkout.js](k6-tests/teste-aquisicao-checkout.js)
+
+**Otimizações:**
+* Melhoria no AquisicaoController para distinguir erros de regras de negócio e falhas de sistema.
+* Inclusão de ordenação dos ids de patentes no AquisicaoService antes do processamento, eliminando a dependência circular, visando evitar deadlock.
+* Implementação do método atualizarStatusEmMassa no PatenteRepository, que realiza a verificação e a atualização das patentes disponíveis em uma única operação SQL, prevenindo race conditions.
+* Ajuste no tamanho do pool e nos tempos de timeout do HikariCP, permitindo que a aplicação suporte maior carga de conexões simultâneas ao banco de dados.
+* Refatoração do teste-aquisicao-checkout para aumentar a concorrência, realizando um stress test na aplicação.
