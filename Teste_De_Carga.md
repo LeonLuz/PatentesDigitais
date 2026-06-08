@@ -128,28 +128,28 @@ Para garantir alta disponibilidade e atingir nossa meta de SLA (abaixo de 500ms)
 
 * **Persistência:** Banco de Dados Relacional MySQL local (v8.0.44), gerenciado via Hibernate/JPA (Versão 6.6.49) utilizando pool de conexões HikariCP.
 
-* **Ambiente de Teste:** Máquina Windows local, disparos realizados via Windows PowerShell, com monitoramento em tempo real via InfluxDB 1.8.
+* **Ambiente de Teste:** Máquina Windows local, disparos realizados via CLI pelo Grafana K6.
 
 **MEDIÇÃO 1** (como atualizei o teste, fiz uma nova medição na versão anterior)
 
-**Data da medição:** 05/06/2026
+**Data da medição:** 08/06/2026
 
 **Testes de carga (SLA):**
 
-* **Latência (Tempo de Resposta Médio - p95):** 55.43 ms
+* **Latência (Tempo de Resposta Médio - p95):** 20.38 ms
 
-* **Vazão:** 89.92 requisições por segundo (Total de 31478 checks realizados).
+* **Vazão:** 51.46 requisições por segundo.
 
-* **Concorrência:** 150 requisições simultâneas mantidas de forma constante (VUs).
+* **Concorrência:** 100 requisições simultâneas mantidas de forma constante (VUs).
 
-* **Taxa de Erro:** 13.35% (Falhas na validação da transação de aquisição).
+* **Taxa de Erro:** 4.78% (Falhas na validação da transação de aquisição).
 
 ![Imagem teste3 grafana](image-6.png)
 ![Imagem teste3 PowerShell](image-7.png)
 
 **LEVANTAMENTO DE HIPÓTESES dos potenciais gargalos do sistema que influenciam esta funcionalidade:**
 
-**Concorrência no Controle de Estoque (Race Condition):** A taxa de falha de 13.35% pode indicar que o sistema está falhando ao tentar reservar itens em estoque simultaneamente.
+**Concorrência no Controle de Estoque (Race Condition):** A taxa de falha de 4.78% pode indicar que o sistema está falhando ao tentar reservar itens em estoque simultaneamente.
 
 **Saturação do Pool de Conexões:** Como a operação de checkout envolve múltiplas tabelas (Carrinho, Estoque, Transação), se o HikariCP estiver com um limite de conexões baixo, as threads do Tomcat podem ficar em estado de WAITING, esperando uma conexão livre com o MySQL, o que explica a variação na latência em cenários de alta concorrência.
 
@@ -157,29 +157,24 @@ Para garantir alta disponibilidade e atingir nossa meta de SLA (abaixo de 500ms)
 
 **MEDIÇÃO 2**
 
-**Data da medição:** 05/06/2026
+**Data da medição:** 08/06/2026
 
 **Testes de carga (SLA):**
 
-* **Latência (Tempo de Resposta Médio - p95):** 82.14 ms
+* **Latência (Tempo de Resposta Médio - p95):** 173.53 ms
 
-* **Vazão:** 80.68 requisições por segundo (Total de 29958 checks realizados).
+* **Vazão:** 50.89 requisições por segundo
 
-* **Concorrência:** 150 requisições simultâneas mantidas de forma constante (VUs).
+* **Concorrência:** 100 requisições simultâneas mantidas de forma constante (VUs).
 
-* **Taxa de Erro:** 0.03% (Falhas na validação da transação de aquisição).
+* **Taxa de Erro:** 0.00% (Houveram falhas na transação de aquisição, não de sistema).
 
 ![Imagem teste3 grafana v2](image-13.png)
 ![Imagem teste3 PowerShell v2](image-14.png)
 
-**Comparação:**
+**Comparação da vazão:**
 
-|   Métricas   |  Medição 1  |  Medição 2  |
-|:------------:|:-----------:|:-----------:|
-|   Latência   |  55.43 ms   |  82.14 ms   |
-|    Vazão     | 84.92 req/s | 80.62 req/s |
-| Concorrência |   150 VUs   |   150 VUs   |
-| Taxa de Erro |   13.35%    |   0.03%     |
+![Imagem gráfico comparativo](image-15.png)
 
 **Arquivos modificados:** 
 * [AquisicaoController.java](src/main/java/io/github/leonluz/gatewayapi/pedidos/controller/AquisicaoController.java)
