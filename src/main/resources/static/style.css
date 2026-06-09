@@ -21,7 +21,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     position: sticky;
     top: 0;
     z-index: 1000;
@@ -34,10 +34,10 @@ body {
     height: 70px;
 }
 
-.logo-container img { 
-    max-height: 50px; 
-    width: auto; 
-    cursor: pointer; 
+.logo-container img {
+    max-height: 50px;
+    width: auto;
+    cursor: pointer;
     display: block;
 }
 
@@ -78,7 +78,7 @@ body {
     background: white;
     padding: 30px;
     border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 .form-group {
@@ -91,7 +91,9 @@ label {
     font-weight: bold;
 }
 
-input, select, textarea {
+input,
+select,
+textarea {
     width: 100%;
     padding: 10px;
     border: 1px solid #ddd;
@@ -131,19 +133,21 @@ button:hover {
 
 /* Botão de Cancelar específico */
 .btn-cancel {
-    background-color: #666 !important; /* Cor cinza para diferenciar */
-    margin-top: 15px !important;       /* Garante um espaçamento extra acima */
+    background-color: #666 !important;
+    /* Cor cinza para diferenciar */
+    margin-top: 15px !important;
+    /* Garante um espaçamento extra acima */
 }
 
 /* Caso queira um espaçamento entre dois botões empilhados */
-form button + button {
+form button+button {
     margin-top: 15px;
 }
 
 /* VITRINE */
 .search-container {
     padding: 3rem 5%;
-    background: linear-gradient(rgba(0,74,141,0.9), rgba(0,74,141,0.9)), url('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=1200');
+    background: linear-gradient(rgba(0, 74, 141, 0.9), rgba(0, 74, 141, 0.9)), url('https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=1200');
     background-size: cover;
     color: white;
     text-align: center;
@@ -161,7 +165,7 @@ form button + button {
     padding: 20px;
     border-radius: 10px;
     border-top: 5px solid var(--primary-color);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -175,7 +179,7 @@ form button + button {
     width: 350px;
     height: 100%;
     background: white;
-    box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
     transition: 0.4s;
     padding: 20px;
     z-index: 1001;
@@ -195,10 +199,19 @@ form button + button {
 }
 
 .btn-remove {
-    background-color: var(--danger);
-    width: auto;
-    padding: 5px 10px;
-    font-size: 0.8rem;
+    background: transparent;
+    color: #dc3545;
+    border: 1px solid #dc3545;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-remove:hover {
+    background: #dc3545;
+    color: white;
 }
 
 .hidden {
@@ -243,7 +256,7 @@ form button + button {
     background: white;
     padding: 30px;
     border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
 /* Alinha o título do topo do formulário */
