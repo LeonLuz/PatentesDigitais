@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-pt">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Solicitação de Aquisição | Mercado de Patentes</title>
+    <link rel="stylesheet" href="style-checkout.css">
+</head>
+
+<body>
+
+    <div class="checkout-container">
+        <header class="checkout-header">
+            <h1>CHECKOUT DE PATENTE</h1>
+            <a href="index.html">Voltar para Vitrine</a>
+        </header>
+
+        <div class="checkout-grid">
+            <main class="checkout-form">
+                <form id="form-aquisicao">
+                    <h3>Dados do Interessado</h3>
+                    <div class="form-group">
+                        <label>E-mail para contato *</label>
+                        <input type="email" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Nome / Razão Social *</label>
+                            <input type="text" required>
+                        </div>
+                        <div class="form-group">
+                            <label>CPF / CNPJ *</label>
+                            <input type="text" required>
+                        </div>
+                    </div>
+
+                    <h3>Finalidade da Aquisição</h3>
+                    <div class="form-group">
+                        <label>Descreva brevemente o interesse na tecnologia *</label>
+                        <textarea rows="4" placeholder="Como pretende aplicar esta patente?"></textarea>
+                    </div>
+                </form>
+            </main>
+
+            <aside class="order-summary">
+                <h3>Resumo do Pedido</h3>
+
+                <div id="resumo-itens-container"></div>
+
+                <div class="summary-totals">
+                    <hr>
+                    <p class="total">Total Estimado <span id="total-estimado">R$ 500,00</span></p>
+                </div>
+
+                <button class="btn-submit" onclick="confirmarAquisicao()">Enviar Solicitação</button>
+                <p class="secure-text">🔒 Processo Seguro via NIT</p>
+            </aside>
+        </div>
+    </div>
+    <script>
+        // 1. Recupera os dados do carrinho salvos pelo script principal
+        const itensDoCarrinho = JSON.parse(localStorage.getItem('checkoutItems') || '[]');
+
+        // 2. Seleciona onde os itens serão renderizados no HTML
+        const resumoContainer = document.querySelector('.summary-totals'); // Ajuste o seletor conforme seu HTML
+        const listaItens = document.getElementById('lista-resumo-patentes'); // Você precisará criar este elemento no seu HTML
+
+        function renderizarResumo() {
+            // 1. Defina a variável 'container' buscando o elemento no DOM
+            const container = document.getElementById('resumo-itens-container');
+
+            // Verificação de segurança para evitar erro se o ID não existir
+            if (!container) {
+                console.error("Elemento 'resumo-itens-container' não encontrado.");
+                return;
+            }
+
+            if (itensDoCarrinho.length === 0) {
+                alert("Carrinho vazio. Redirecionando...");
+                window.location.href = "index.html";
+                return;
+            }
+
+            // 2. O .map() já retorna a string pronta, não precisamos da variável 'htmlItens' separada
+            container.innerHTML = itensDoCarrinho.map(item => `
+                <div class="patent-item" style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;">
+                    <img src="patente.png" alt="Ícone Patente" style="width: 50px; height: 50px; object-fit: contain;">
+                    <div>
+                        <p style="margin: 0;"><strong>${item.titulo}</strong></p>
+                        <p style="margin: 0; font-size: 0.8em; color: #666;">Ref: ${item.id || 'N/A'}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Executa ao carregar a página
+        document.addEventListener('DOMContentLoaded', renderizarResumo);
+    </script>
+    <script src="script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,93 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f9f9f9;
+    padding: 20px;
+}
+
+.checkout-container {
+    max-width: 1000px;
+    margin: auto;
+    background: white;
+    padding: 40px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+}
+
+.checkout-grid {
+    display: grid;
+    grid-template-columns: 1fr 350px;
+    gap: 40px;
+}
+
+.info-box {
+    background: #eee;
+    padding: 15px;
+    margin-bottom: 20px;
+    font-size: 0.9em;
+}
+
+/* Inputs e Forms */
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input,
+textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* Resumo */
+.order-summary {
+    background: #f4f4f4;
+    padding: 20px;
+    border-radius: 5px;
+    height: fit-content;
+}
+
+.patent-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.patent-item img {
+    width: 60px;
+    height: 60px;
+    background: #ddd;
+}
+
+.summary-totals {
+    margin-top: 20px;
+}
+
+.total {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #333;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 15px;
+    background: #000;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.secure-text {
+    font-size: 0.8em;
+    text-align: center;
+    margin-top: 10px;
+    color: #666;
+}
