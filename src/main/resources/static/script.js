@@ -603,19 +603,12 @@ async function finalizarInteresse() {
         alert("Seu carrinho está vazio!");
         return;
     }
-    try {
-        const response = await fetch(`${API_BASE_URL}/aquisicoes/checkout/${loggedUserId}`, { method: 'POST' });
-        if (response.status === 201) {
-            alert(await response.text());
-            cart = [];
-            updateCartUI();
-            toggleCart();
-        } else {
-            alert("Erro ao finalizar checkout.");
-        }
-    } catch (error) {
-        console.error("Erro no checkout:", error);
-    }
+
+    // 1. Armazena o carrinho no localStorage para que a página de checkout tenha acesso
+    localStorage.setItem('checkoutItems', JSON.stringify(cart));
+
+    // 2. Redireciona o usuário para a página de formulário de aquisição
+    window.location.href = "checkout-patente.html";
 }
 
 async function criarAquisicaoDireta(aquisicaoRequestDTO) {
@@ -640,27 +633,43 @@ async function buscarAquisicaoPorId(idAquisicao) {
     }
 }
 
+async function confirmarAquisicao() {
+    const idUsuario = localStorage.getItem('loggedUserId');
+
+    // A rota deve incluir /checkout/ + idUsuario
+    const url = `${API_BASE_URL}/aquisicoes/checkout/${idUsuario}`;
+
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        if (response.status === 201) {
+            const mensagem = await response.text();
+            alert(mensagem); // "Checkout finalizado com sucesso! ID da Transação: ..."
+            localStorage.removeItem('checkoutItems');
+            window.location.href = "index.html";
+        } else {
+            const erro = await response.text();
+            alert("Erro: " + erro);
+        }
+    } catch (error) {
+        console.error("Erro na requisição:", error);
+    }
+}
+
 function toggleCart() {
     document.getElementById('cart-modal').classList.toggle('active');
 }
 
 function updateCartUI() {
-    const itemsContainer = document.getElementById('cart-items');
-    const countElement = document.getElementById('cart-count');
-
-    countElement.innerText = cart.length;
-
-    if (cart.length === 0) {
-        itemsContainer.innerHTML = "<p style='color:#888; padding:10px;'>Seu carrinho está vazio.</p>";
+    const cartCountElement = document.getElementById('cart-count');
+    // Adicionando essa verificação de segurança:
+    if (cartCountElement) {
+        cartCountElement.innerText = cart.length;
     } else {
-        itemsContainer.innerHTML = cart.map(item => `
-            <div class="cart-item">
-                <span>${item.titulo}</span>
-                <button class="btn-remove" onclick="removeFromCart('${item.id || item.idPatente}')">
-                    Remover
-                </button>
-            </div>
-        `).join('');
+        console.warn("Elemento 'cart-count' não encontrado no DOM.");
     }
 }
 
