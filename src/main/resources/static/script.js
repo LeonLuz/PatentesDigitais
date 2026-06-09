@@ -566,6 +566,7 @@ async function addToCart(idPatente) {
             const patenteParaAdicionar = patents.find(p => (p.id === idPatente || p.idPatente === idPatente));
             cart.push(patenteParaAdicionar || { id: idPatente, titulo: "Patente Adicionada" });
             updateCartUI();
+            renderizarConteudoCarrinho();
             toggleCart();
             alert("Patente adicionada ao carrinho!");
         } else {
@@ -586,11 +587,30 @@ async function removeFromCart(idPatente) {
         if (response.ok) {
             cart = cart.filter(item => (item.id !== idPatente && item.idPatente !== idPatente));
             updateCartUI();
+            renderizarConteudoCarrinho();
         } else {
             alert("Erro ao remover o item.");
         }
     } catch (error) {
         console.error("Erro ao deletar item:", error);
+    }
+}
+
+function renderizarConteudoCarrinho() {
+    const container = document.getElementById('cart-items'); // Certifique-se que este ID existe no seu HTML
+    if (!container) return;
+
+    if (cart.length === 0) {
+        container.innerHTML = "<p>Seu carrinho está vazio.</p>";
+    } else {
+        container.innerHTML = cart.map(item => `
+        <div class="cart-item" style="border-bottom: 1px solid #eee; padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+            <p style="margin: 0;"><strong>${item.titulo}</strong></p>
+            <button class="btn-remove" onclick="removeFromCart('${item.id || item.idPatente}')">
+                Remover
+            </button>
+        </div>
+    `).join('');
     }
 }
 
@@ -739,7 +759,7 @@ function renderPatents(listaPatentes) {
 // =========================================================================
 
 async function inicializarAplicacao() {
-    await fetchPatents();
+    await fetchPatents(); // 1. Garante que as patentes existam na memória
 
     const idSalvo = localStorage.getItem('loggedUserId');
     const perfilSalvo = localStorage.getItem('currentUserRole');
@@ -748,10 +768,12 @@ async function inicializarAplicacao() {
         loggedUserId = idSalvo;
         currentUserRole = perfilSalvo;
 
-        console.log(`Sessão restaurada com sucesso: ${loggedUserId} (${currentUserRole})`);
+        console.log(`Sessão restaurada: ${loggedUserId} (${currentUserRole})`);
 
         if (currentUserRole !== 'NIT') {
+            // 2. Aguarda o carregamento do carrinho E renderiza
             await carregarCarrinhoDoServidor(loggedUserId);
+            renderizarConteudoCarrinho(); // <--- Adicione esta linha!
             loginAsUser(currentUserRole);
         } else {
             loginAsNIT();
