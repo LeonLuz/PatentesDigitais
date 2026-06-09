@@ -205,6 +205,33 @@ form button + button {
     display: none !important;
 }
 
+.form-footer {
+    text-align: center;
+    margin-top: 25px;
+    font-size: 0.95rem;
+    color: #555;
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+.form-footer p {
+    margin: 0;
+}
+
+.form-footer a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: 5px;
+    transition: color 0.2s ease;
+}
+
+.form-footer a:hover {
+    color: var(--secondary-color);
+    text-decoration: underline;
+}
+
 /* =========================================================================
    TELA DE EDITAR PERFIL
    ========================================================================= */
@@ -263,4 +290,15 @@ form button + button {
 #edit-profile-form button[type="button"] {
     background-color: #666;
     margin-top: 15px;
+}
+
+/* BADGES */
+.badge {
+    display: inline-block;
+    padding: 5px 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 20px;
+    background-color: #e0e6ed;
+    color: var(--text-dark);
 }
