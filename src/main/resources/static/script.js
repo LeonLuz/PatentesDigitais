@@ -537,8 +537,9 @@ function baixarPdfPatente(idPatente) {
 
 async function addToCart(idPatente) {
     if (currentUserRole === "VISITANTE") {
-        alert("Você precisa estar logado.");
-        showSection('login-section');
+        if (confirm("Você precisa estar logado para manifestar interesse. Deseja fazer login?")) {
+            showSection('login-section');
+        }
         return;
     }
 
@@ -675,11 +676,30 @@ function renderPatents(listaPatentes) {
     catalog.innerHTML = listaPatentes.map(p => {
         const statusAtual = (typeof p.status === 'object' && p.status !== null) ? p.status.name : p.status;
 
+        let corStatus = '#007bff';
+        let corTexto = 'white';
+        if (statusAtual === 'DISPONIVEL') {
+            corStatus = '#28a745';
+        } else if (statusAtual === 'RASCUNHO') {
+            corStatus = '#6c757d';
+        } else if (statusAtual === 'REPROVADA' || statusAtual === 'EXCLUIDA') {
+            corStatus = '#dc3545';
+        } else if (statusAtual === 'EM_PROCESSO_DE_COMPRA') {
+            corStatus = '#ffc107';
+            corTexto = '#333';
+        } else if (statusAtual === 'CEDIDA' || statusAtual === 'LICENCIADA') {
+            corStatus = '#17a2b8';
+        }
+
+
         return `
             <div class="patent-card">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
                     <span class="badge">${p.area || 'Geral'}</span>
-                    ${currentUserRole === 'NIT' ? `<span class="badge" style="background:#007bff;">${statusAtual}</span>` : ''}
+                ${currentUserRole === 'NIT' || currentUserRole === 'ORGANIZACAO' || currentUserRole === 'ORGANIZAÇÃO INTERESSADA'
+                ? `<span class="badge" style="background:${corStatus}; color:${corTexto}; text-align:center;">${statusAtual.replace(/_/g, ' ')}</span>`
+                : ''
+            }
                 </div>
                 <h3>${p.titulo}</h3>
                 <p class="inventor"><strong>Inventores:</strong> ${p.pesquisadores || 'Não informado'}</p>
