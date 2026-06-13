@@ -32,12 +32,24 @@ public class OrganizacaoService {
         organizacao.setStatusAtivo(true);
         organizacao.setStatusAuth(true);
 
-        Organizacao organizacaoSalva = organizacaoRepository.save(organizacao);
+        try{
+            Organizacao organizacaoSalva = organizacaoRepository.saveAndFlush(organizacao);
 
-        Carrinho novoCarrinho = new Carrinho(organizacaoSalva);
-        carrinhoRepository.save(novoCarrinho);
+            Carrinho novoCarrinho = new Carrinho(organizacaoSalva);
+            carrinhoRepository.save(novoCarrinho);
 
-        return organizacaoSalva;
+            return organizacaoSalva;
+        }
+        catch (org.springframework.dao.DataIntegrityViolationException e){
+            String mensagemBanco = e.getRootCause() != null ? e.getRootCause().getMessage().toLowerCase() : "";
+
+            if(mensagemBanco.contains("cpf"))
+                throw new IllegalArgumentException("CPF já cadastrado!");
+            else if(mensagemBanco.contains("email"))
+                throw new IllegalArgumentException("E-mail já cadastrado!");
+
+            throw new  IllegalArgumentException(mensagemBanco);
+        }
     }
 
     @Transactional

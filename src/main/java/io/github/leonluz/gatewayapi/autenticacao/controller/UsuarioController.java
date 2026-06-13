@@ -1,12 +1,6 @@
 package io.github.leonluz.gatewayapi.autenticacao.controller;
 
-import io.github.leonluz.gatewayapi.autenticacao.dto.LoginRequestDTO;
-import io.github.leonluz.gatewayapi.autenticacao.dto.NITRequestDTO;
-import io.github.leonluz.gatewayapi.autenticacao.dto.OrganizacaoRequestDTO;
-import io.github.leonluz.gatewayapi.autenticacao.dto.PesquisadorRequestDTO;
-import io.github.leonluz.gatewayapi.autenticacao.dto.NitUpdateDTO;
-import io.github.leonluz.gatewayapi.autenticacao.dto.OrganizacaoUpdateDTO;
-import io.github.leonluz.gatewayapi.autenticacao.dto.PesquisadorUpdateDTO;
+import io.github.leonluz.gatewayapi.autenticacao.dto.*;
 import io.github.leonluz.gatewayapi.autenticacao.model.NIT;
 import io.github.leonluz.gatewayapi.autenticacao.model.Organizacao;
 import io.github.leonluz.gatewayapi.autenticacao.model.Pesquisador;
@@ -15,12 +9,12 @@ import io.github.leonluz.gatewayapi.autenticacao.service.NITService;
 import io.github.leonluz.gatewayapi.autenticacao.service.OrganizacaoService;
 import io.github.leonluz.gatewayapi.autenticacao.service.PesquisadorService;
 import io.github.leonluz.gatewayapi.autenticacao.service.UsuarioService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @RestController
@@ -62,18 +56,33 @@ public class UsuarioController {
     }
 
     @PostMapping("/nit")
-    public ResponseEntity<NIT> salvarNIT(@RequestBody NITRequestDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(this.nitService.salvarNit(dto));
+    public ResponseEntity<?> salvarNIT(@Valid @RequestBody NITRequestDTO dto) {
+        try{
+            return ResponseEntity.status(HttpStatus.CREATED).body(this.nitService.salvarNit(dto));
+        }
+        catch (IllegalArgumentException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PostMapping("/pesquisador")
-    public ResponseEntity<Pesquisador> salvarPesquisador(@RequestBody PesquisadorRequestDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(this.pesquisadorService.salvarPesquisador(dto));
+    public ResponseEntity<?> salvarPesquisador(@Valid @RequestBody PesquisadorRequestDTO dto) {
+        try{
+            return ResponseEntity.status(HttpStatus.CREATED).body(this.pesquisadorService.salvarPesquisador(dto));
+        }
+        catch (IllegalArgumentException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PostMapping("/organizacao")
-    public ResponseEntity<Organizacao> salvarOrganizacao(@RequestBody OrganizacaoRequestDTO dto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(this.organizacaoService.salvarOrganizacao(dto));
+    public ResponseEntity<?> salvarOrganizacao(@Valid @RequestBody OrganizacaoRequestDTO dto) {
+        try{
+            return ResponseEntity.status(HttpStatus.CREATED).body(this.organizacaoService.salvarOrganizacao(dto));
+        }
+        catch (IllegalArgumentException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @GetMapping("/{id}")
@@ -88,18 +97,33 @@ public class UsuarioController {
     }
 
     @PutMapping("/nit/{id}")
-    public ResponseEntity<NIT> atualizarNIT(@PathVariable("id") UUID id, @RequestBody NitUpdateDTO dto) {
-        return ResponseEntity.ok(nitService.atualizarNit(id, dto));
+    public ResponseEntity<?> atualizarNIT(@PathVariable("id") UUID id, @RequestBody NitUpdateDTO dto) {
+        try{
+            return ResponseEntity.ok(nitService.atualizarNit(id, dto));
+        }
+        catch (IllegalArgumentException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PutMapping("/pesquisador/{id}")
-    public ResponseEntity<Pesquisador> atualizarPesquisador(@PathVariable("id") UUID id, @RequestBody PesquisadorUpdateDTO dto) {
-        return ResponseEntity.ok(pesquisadorService.atualizarPesquisador(id, dto));
+    public ResponseEntity<?> atualizarPesquisador(@PathVariable("id") UUID id, @Valid @RequestBody PesquisadorUpdateDTO dto) {
+        try{
+            return ResponseEntity.ok(pesquisadorService.atualizarPesquisador(id, dto));
+        }
+        catch (IllegalArgumentException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PutMapping("/organizacao/{id}")
-    public ResponseEntity<Organizacao> atualizarOrganizacao(@PathVariable("id") UUID id, @RequestBody OrganizacaoUpdateDTO dto) {
-        return ResponseEntity.ok(organizacaoService.atualizarOrganizacao(id, dto));
+    public ResponseEntity<?> atualizarOrganizacao(@PathVariable("id") UUID id, @RequestBody OrganizacaoUpdateDTO dto) {
+        try{
+            return ResponseEntity.ok(organizacaoService.atualizarOrganizacao(id, dto));
+        }
+        catch (IllegalArgumentException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PostMapping("/login")
@@ -126,5 +150,13 @@ public class UsuarioController {
     @GetMapping("/ids")
     public ResponseEntity<List<String>> listarIdUsuarios() {
         return ResponseEntity.ok(usuarioService.listarIdUsuarios());
+    }
+
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(org.springframework.web.bind.MethodArgumentNotValidException.class)
+    public ResponseEntity<String> tratarErrosDeValidacao(org.springframework.web.bind.MethodArgumentNotValidException ex) {
+        var fieldError = ex.getBindingResult().getFieldError();
+        String mensagem = (fieldError != null) ? fieldError.getDefaultMessage() : "Erro de validação.";
+        return ResponseEntity.badRequest().body(mensagem);
     }
 }
