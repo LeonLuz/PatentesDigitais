@@ -25,10 +25,10 @@ public class UsuarioService {
     @Transactional(readOnly = true)
     public Usuario autenticar(String email, String senha) {
         Usuario usuario = usuarioRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o e-mail informado."));
+                .orElseThrow(() -> new RuntimeException("E-mail e/ou senha inválidos."));
 
         if (!usuario.getSenha().equals(senha)) {
-            throw new RuntimeException("Senha incorreta.");
+            throw new RuntimeException("E-mail e/ou senha inválidos.");
         }
 
         return usuario;
@@ -37,7 +37,7 @@ public class UsuarioService {
     @Transactional(readOnly = true)
     public Usuario obterUsuarioPorId(UUID id) {
         return usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com o ID: " + id));
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
     }
 
     @Transactional

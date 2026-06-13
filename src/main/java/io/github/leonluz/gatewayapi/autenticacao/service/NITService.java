@@ -8,6 +8,7 @@ import io.github.leonluz.gatewayapi.autenticacao.repository.NITRepository;
 import io.github.leonluz.gatewayapi.autenticacao.repository.UsuarioRepository;
 import io.github.leonluz.gatewayapi.pedidos.model.Carrinho;
 import io.github.leonluz.gatewayapi.pedidos.repository.CarrinhoRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,12 +35,24 @@ public class NITService {
         nit.setStatusAtivo(true);
         nit.setStatusAuth(true);
 
-        NIT nitSalvo = nitRepository.save(nit);
+        try{
+            NIT nitSalvo = nitRepository.saveAndFlush(nit);
 
-        Carrinho novoCarrinho = new Carrinho(nitSalvo);
-        carrinhoRepository.save(novoCarrinho);
+            Carrinho novoCarrinho = new Carrinho(nitSalvo);
+            carrinhoRepository.save(novoCarrinho);
 
-        return nitSalvo;
+            return nitSalvo;
+        }
+        catch (org.springframework.dao.DataIntegrityViolationException e){
+            String mensagemBanco = e.getRootCause() != null ? e.getRootCause().getMessage().toLowerCase() : "";
+
+            if(mensagemBanco.contains("cpf"))
+                throw new IllegalArgumentException("CPF já cadastrado!");
+            else if(mensagemBanco.contains("email"))
+                throw new IllegalArgumentException("E-mail já cadastrado!");
+
+            throw new  IllegalArgumentException(mensagemBanco);
+        }
     }
 
     public NIT atualizarNit(UUID id, NitUpdateDTO dto) {

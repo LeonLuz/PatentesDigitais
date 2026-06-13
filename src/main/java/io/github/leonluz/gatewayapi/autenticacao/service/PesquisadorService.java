@@ -30,12 +30,24 @@ public class PesquisadorService {
         pesquisador.setIdUsuario(UUID.randomUUID());
         pesquisador.setTipoPerfil(TipoPerfil.PESQUISADOR);
 
-        Pesquisador pesquisadorSalvo = pesquisadorRepository.save(pesquisador);
+        try{
+            Pesquisador pesquisadorSalvo = pesquisadorRepository.saveAndFlush(pesquisador);
 
-        Carrinho novoCarrinho = new Carrinho(pesquisadorSalvo);
-        carrinhoRepository.save(novoCarrinho);
+            Carrinho novoCarrinho = new Carrinho(pesquisadorSalvo);
+            carrinhoRepository.save(novoCarrinho);
 
-        return pesquisadorSalvo;
+            return pesquisadorSalvo;
+        }
+        catch (org.springframework.dao.DataIntegrityViolationException e){
+            String mensagemBanco = e.getRootCause() != null ? e.getRootCause().getMessage().toLowerCase() : "";
+
+            if(mensagemBanco.contains("cpf"))
+                throw new IllegalArgumentException("CPF já cadastrado!");
+            else if(mensagemBanco.contains("email"))
+                throw new IllegalArgumentException("E-mail já cadastrado!");
+
+            throw new  IllegalArgumentException(mensagemBanco);
+        }
     }
 
     @Transactional
